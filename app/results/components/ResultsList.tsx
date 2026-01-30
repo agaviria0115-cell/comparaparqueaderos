@@ -16,10 +16,11 @@ export function ResultsList({ parkings }: ResultsListProps) {
   }
 
   return (
-    <section>
+    <section style={{ marginTop: 12 }}>
       {parkings.map((parking) => (
         <ParkingCard key={parking.id} parking={parking} />
       ))}
     </section>
   );
+
 }

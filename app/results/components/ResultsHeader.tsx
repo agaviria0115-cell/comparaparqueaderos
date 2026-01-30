@@ -12,13 +12,13 @@ export function ResultsHeader({
   end,
 }: ResultsHeaderProps) {
   return (
-    <section style={{ marginBottom: 16 }}>
-      <h2 style={{ marginBottom: 4 }}>
+    <section style={{ marginBottom: 20 }}>
+      <h2 style={{ marginBottom: 6 }}>
         Parking options near you
       </h2>
 
-      <p style={{ fontSize: 14, color: "#555" }}>
-        {parkingsCount} results
+      <p style={{ fontSize: 14, color: "#666" }}>
+        {parkingsCount} resultados
         {vehicle ? ` • ${vehicle}` : ""}
         {start && end ? ` • ${start} → ${end}` : ""}
       </p>
