@@ -29,6 +29,13 @@ export default function SearchForm() {
     window.location.href = `/search?${query}`;
   }
 
+  const labelStyle = {
+  fontSize: "14px",
+  fontWeight: 500,
+  marginBottom: "4px",
+  display: "block",
+  };
+
   return (
     <section className="px-6 pb-20">
       <div
@@ -40,69 +47,59 @@ export default function SearchForm() {
         "
       >
         {/* Ciudad (required) */}
-        <select
-          name="ciudad"
-          required
-          onChange={handleChange}
-          className="input"
-        >
-          <option value="">Ciudad</option>
-          <option value="medellin">Medellín</option>
-          <option value="bogota">Bogotá</option>
+        <div>
+        <label style={labelStyle}>Ciudad</label>
+        <select name="ciudad" onChange={handleChange}>
+            <option value="">Selecciona ciudad</option>
+            <option value="medellin">Medellín</option>
+            <option value="bogota">Bogotá</option>
         </select>
+        </div>
 
         {/* Aeropuerto (required SELECT) */}
-        <select
-          name="aeropuerto"
-          required
-          onChange={handleChange}
-          className="input"
-        >
-          <option value="">Aeropuerto</option>
-          <option value="MDE">José María Córdova (MDE)</option>
-          <option value="BOG">El Dorado (BOG)</option>
+        <div>
+        <label style={labelStyle}>Aeropuerto</label>
+        <select name="aeropuerto" onChange={handleChange}>
+            <option value="">Selecciona aeropuerto</option>
+            <option value="MDE">José María Córdova (MDE)</option>
+            <option value="BOG">El Dorado (BOG)</option>
         </select>
+        </div>
 
         {/* Fecha Entrada */}
-        <input
-          type="date"
-          name="fechaEntrada"
-          onChange={handleChange}
-          className="input"
-        />
+        <div>
+        <label style={labelStyle}>Fecha de entrada</label>
+        <input type="date" name="fechaEntrada" onChange={handleChange} />
+        </div>
 
         {/* Hora Entrada */}
-        <input
-          type="time"
-          name="horaEntrada"
-          onChange={handleChange}
-          className="input"
-        />
+        <div>
+        <label style={labelStyle}>Hora de entrada</label>
+        <input type="time" name="horaEntrada" onChange={handleChange} />
+        </div>
 
         {/* Fecha Salida */}
-        <input
-          type="date"
-          name="fechaSalida"
-          onChange={handleChange}
-          className="input"
-        />
+        <div>
+        <label style={labelStyle}>Fecha de salida</label>
+        <input type="date" name="fechaSalida" onChange={handleChange} />
+        </div>
 
         {/* Hora Salida */}
-        <input
-          type="time"
-          name="horaSalida"
-          onChange={handleChange}
-          className="input"
-        />
+        <div>
+        <label style={labelStyle}>Hora de salida</label>
+        <input type="time" name="horaSalida" onChange={handleChange} />
+        </div>
 
         {/* Código Descuento */}
+        <div>
+        <label style={labelStyle}>Código de descuento</label>
         <input
-          type="text"
-          name="codigo"
-          placeholder="Código descuento"
-          onChange={handleChange}
-          className="input"
+            type="text"
+            name="codigo"
+            placeholder="Opcional"
+            onChange={handleChange}
         />
+        </div>
 
         {/* Submit */}
         <button
