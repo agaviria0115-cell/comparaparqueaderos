@@ -41,15 +41,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select("slug, airports ( slug )")
     .eq("is_active", true);
 
-  parkings?.forEach((p) => {
-    if (!p.airports?.slug) return;
+parkings?.forEach((p) => {
+  const airport = p.airports?.[0];
 
-    urls.push({
-      url: `https://comparaparqueaderos.com/aeropuerto/${p.airports.slug}/parqueadero/${p.slug}`,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    });
+  if (!airport?.slug) return;
+
+  urls.push({
+    url: `https://comparaparqueaderos.com/aeropuerto/${airport.slug}/parqueadero/${p.slug}`,
+    lastModified: new Date(),
   });
+});
 
   return urls;
 }

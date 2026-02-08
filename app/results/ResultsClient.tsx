@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabase";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 /* -------------------------------------------------------
    Helpers
@@ -86,9 +89,9 @@ export default function ResultsClient() {
     vehicle_plate: "",
   });
 
-  const [cityName, setCityName] = useState<string | null>(null);
+  const [city, setCity] = useState<{ name: string; slug: string } | null>(null);
   const [airport, setAirport] =
-    useState<{ name: string; code: string } | null>(null);
+    useState<{ name: string; code: string; slug: string } | null>(null);
 
   const [parkings, setParkings] = useState<any[]>([]);
   const [loadingParkings, setLoadingParkings] = useState(true);
@@ -260,21 +263,22 @@ Enviado desde *ComparaParqueaderos.com*
   ------------------------------------------------------- */
 
   // Load city name
-  useEffect(() => {
-    if (!city_id) return;
+// Load city
+useEffect(() => {
+  if (!city_id) return;
 
-    async function loadCity() {
-      const { data } = await supabase
-        .from("cities")
-        .select("name")
-        .eq("id", city_id)
-        .single();
+  async function loadCity() {
+    const { data } = await supabase
+      .from("cities")
+      .select("name, slug")
+      .eq("id", city_id)
+      .single();
 
-      if (data) setCityName(data.name);
-    }
+    if (data) setCity(data);
+  }
 
-    loadCity();
-  }, [city_id]);
+  loadCity();
+}, [city_id]);
 
   // Load airport
   useEffect(() => {
@@ -283,7 +287,7 @@ Enviado desde *ComparaParqueaderos.com*
     async function loadAirport() {
       const { data } = await supabase
         .from("airports")
-        .select("name, code")
+        .select("name, code, slug")
         .eq("id", airport_id)
         .single();
 
@@ -412,45 +416,43 @@ Enviado desde *ComparaParqueaderos.com*
         ) : (
         <>
 
-        <nav className="text-sm text-gray-600">
-          <Link href="/">Inicio</Link>
+      <nav className="text-sm text-gray-600">
+        <Link href="/">Inicio</Link>
 
-          {airport && (
-            <>
-              {" "} /{" "}
-              <Link href={`/aeropuerto/${airport_id}`}>
-                {airport.name}
-              </Link>
-            </>
-          )}
-        </nav>
-
-      {/* Header */}
-      <h1 className="text-2xl font-bold">
-        Parqueaderos disponibles cerca del aeropuerto{" "}
-        {airport ? `${airport.name} (${airport.code})` : "…"}
-      </h1>
-
-      {/* Airport */}
-      <div className="text-sm text-gray-600">
-        {airport ? (
+        {city && (
           <>
-            <strong>Aeropuerto:</strong> {airport.name} ({airport.code})
+            {" "} /{" "}
+            <Link href={`/ciudad/${city.slug}`}>
+              {city.name}
+            </Link>
           </>
-        ) : (
-          "Cargando aeropuerto…"
         )}
-      </div>
 
-      {/* Search summary */}
-      <div className="bg-gray-100 p-4 rounded text-sm space-y-1">
-        <div><strong>Vehículo:</strong> {vehiculo}</div>
-        <div><strong>Entrada:</strong> {fechaEntrada} {horaEntrada}</div>
-        <div><strong>Salida:</strong> {fechaSalida} {horaSalida}</div>
-      </div>
+        {airport && (
+          <>
+            {" "} /{" "}
+            <Link href={`/aeropuerto/${airport.slug}`}>
+              Aeropuerto {airport.name}
+            </Link>
+          </>
+        )}
+      </nav>
+
+      <PageHeader
+        title={
+          airport
+            ? `Parqueaderos cerca del Aeropuerto ${airport.name} (${airport.code})`
+            : "Parqueaderos disponibles"
+        }
+        subtitle={
+          vehiculo && fechaEntrada && fechaSalida
+            ? `${vehiculo} • ${formatDateFriendly(fechaEntrada)} ${horaEntrada} → ${formatDateFriendly(fechaSalida)} ${horaSalida}`
+            : undefined
+        }
+      />
 
       {/* Sorting */}
-      <div className="flex items-center gap-4 text-sm">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className="text-gray-600">Ordenar por</span>
         <select
           value={sortBy}
@@ -464,7 +466,7 @@ Enviado desde *ComparaParqueaderos.com*
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 text-sm">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -492,42 +494,40 @@ Enviado desde *ComparaParqueaderos.com*
           sortedParkings.map((p) => {
             const totalPrice = p.price_per_day * totalDays;
 
-            return (
-              <div
-                key={p.id}
-                className="border rounded-lg p-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
-              >
-                <div>
-                  <div className="font-semibold">{p.name}</div>
-                  <div className="text-sm text-gray-600">{p.distance_km} km</div>
-                  <div className="text-sm text-gray-600">
-                    {p.is_covered ? "Bajo Techo" : "Aire Libre"}
-                    {p.has_shuttle && " • Shuttle"}
-                  </div>
-                </div>
-
-                <div className="text-right flex flex-col items-end gap-2">
-                  <div className="text-2xl font-bold">
-                    $ {totalPrice.toLocaleString()}
-                  </div>
-
-                  <Link
-                    href={`/aeropuerto/${p.airport.slug}/parqueadero/${p.slug}`}
-                    className="inline-block bg-blue-600 text-white text-sm px-3 py-2 rounded"
-                  >
-                    Ver detalles
-                  </Link>
-
-                  <button
-                    onClick={() => handleReservar(p)}
-                    className="bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700"
-                  >
-                    Reservar por WhatsApp
-                  </button>
+        return (
+          <Card key={p.id}>
+            <div className="p-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div>
+                <div className="font-semibold">{p.name}</div>
+                <div className="text-sm text-gray-600">{p.distance_km} km</div>
+                <div className="text-sm text-gray-600">
+                  {p.is_covered ? "Bajo Techo" : "Aire Libre"}
+                  {p.has_shuttle && " • Shuttle"}
                 </div>
               </div>
-            );
-          })}
+
+              <div className="text-right flex flex-col items-end gap-2">
+                <div className="text-xl font-semibold">
+                  $ {totalPrice.toLocaleString()}
+                </div>
+
+                <Button
+                  href={`/aeropuerto/${p.airport.slug}/parqueadero/${p.slug}`}
+                >
+                  Ver detalles
+                </Button>
+
+                <Button
+                  onClick={() => handleReservar(p)}
+                  variant="secondary"
+                >
+                  Reservar por WhatsApp
+                </Button>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
       </div>
 
       {/* Booking Modal */}

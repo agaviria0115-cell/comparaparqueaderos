@@ -3,289 +3,353 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/app/lib/supabase";
 
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
+function generateTimeOptions(intervalMinutes = 15) {
+  const times: string[] = [];
+
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += intervalMinutes) {
+      const hh = String(h).padStart(2, "0");
+      const mm = String(m).padStart(2, "0");
+      times.push(`${hh}:${mm}`);
+    }
+  }
+
+  return times;
+}
+
+function getCurrentTimeHHMM() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+/* -------------------------------------------------------
+   Component
+------------------------------------------------------- */
 export default function SearchForm() {
   const [cities, setCities] = useState<any[]>([]);
   const [airports, setAirports] = useState<any[]>([]);
-  const horaSalidaRef = useRef<HTMLInputElement>(null);
-  const horaEntradaRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const horaSalidaRef = useRef<HTMLSelectElement>(null);
+  const horaEntradaRef = useRef<HTMLSelectElement>(null);
+
   const today = new Date().toISOString().split("T")[0];
+  const timeOptions = generateTimeOptions(15);
 
   const [form, setForm] = useState({
     city_id: "",
     airport_id: "",
     vehiculo: "",
     fechaEntrada: "",
-    horaEntrada: "",
+    horaEntrada: "12:00",
     fechaSalida: "",
-    horaSalida: "",
+    horaSalida: "12:00",
   });
 
-// Load cities ONCE on page load
-useEffect(() => {
-  async function loadCities() {
-    const { data, error } = await supabase
-      .from("cities")
-      .select("id, name");
-
-    if (error) {
-      console.error("Error loading cities:", error);
-    } else {
+  /* -----------------------------
+     Load cities ONCE
+  ----------------------------- */
+  useEffect(() => {
+    async function loadCities() {
+      const { data } = await supabase
+        .from("cities")
+        .select("id, name");
       setCities(data || []);
-      console.log("CITIES LOADED:", data);
     }
-  }
+    loadCities();
+  }, []);
 
-  loadCities();
-}, []);
+  /* -----------------------------
+     Load airports WHEN city changes
+  ----------------------------- */
+  useEffect(() => {
+    if (!form.city_id) {
+      setAirports([]);
+      return;
+    }
 
-// Load airports WHEN city changes
-useEffect(() => {
-  if (!form.city_id) {
-    setAirports([]);
-    return;
-  }
+    async function loadAirports() {
+      const { data } = await supabase
+        .from("airports")
+        .select("id, name, code")
+        .eq("city_id", form.city_id);
 
-  async function loadAirports() {
-    const { data, error } = await supabase
-      .from("airports")
-      .select("id, name, code")
-      .eq("city_id", form.city_id);
-
-    if (error) {
-      console.error("Error loading airports:", error);
-    } else {
       setAirports(data || []);
-      console.log("AIRPORTS LOADED:", data);
     }
+
+    loadAirports();
+  }, [form.city_id]);
+
+  /* -----------------------------
+     Auto-fix past time when date = today
+  ----------------------------- */
+  useEffect(() => {
+    if (!form.fechaEntrada) return;
+
+    if (form.fechaEntrada === today) {
+      const nowTime = getCurrentTimeHHMM();
+
+      if (form.horaEntrada < nowTime) {
+        setForm((prev) => ({
+          ...prev,
+          horaEntrada: nowTime,
+        }));
+      }
+    }
+  }, [form.fechaEntrada]);
+
+  /* -----------------------------
+     Handlers
+  ----------------------------- */
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
+    setError(null);
+
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
-  loadAirports();
-}, [form.city_id]);
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
 
-function handleChange(
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) {
-  const { name, value } = e.target;
+    const {
+      city_id,
+      airport_id,
+      vehiculo,
+      fechaEntrada,
+      horaEntrada,
+      fechaSalida,
+      horaSalida,
+    } = form;
 
-  // Clear exit-time validation when user edits exit fields
-if (
-  (name === "fechaSalida" || name === "horaSalida") &&
-  horaSalidaRef.current
-) {
-  horaSalidaRef.current.setCustomValidity("");
-}
+    /* Required fields (Spanish only) */
+    if (!city_id) {
+      setError("Selecciona una ciudad.");
+      return;
+    }
+    if (!airport_id) {
+      setError("Selecciona un aeropuerto.");
+      return;
+    }
+    if (!vehiculo) {
+      setError("Selecciona el tipo de vehículo.");
+      return;
+    }
+    if (!fechaEntrada) {
+      setError("Selecciona la fecha de entrada.");
+      return;
+    }
+    if (!horaEntrada) {
+      setError("Selecciona la hora de entrada.");
+      return;
+    }
+    if (!fechaSalida) {
+      setError("Selecciona la fecha de salida.");
+      return;
+    }
+    if (!horaSalida) {
+      setError("Selecciona la hora de salida.");
+      return;
+    }
 
-if (
-  (name === "fechaEntrada" || name === "horaEntrada") &&
-  horaEntradaRef.current
-) {
-  horaEntradaRef.current.setCustomValidity("");
-}
+    /* Date rules */
+    if (fechaEntrada < today) {
+      setError("La fecha de entrada no puede ser anterior a hoy.");
+      return;
+    }
 
-  setForm({ ...form, [name]: value });
-}
+    if (fechaSalida < fechaEntrada) {
+      setError(
+        "La fecha de salida debe ser igual o posterior a la fecha de entrada."
+      );
+      return;
+    }
 
-function handleSubmit(e: React.FormEvent) {
-  e.preventDefault();
+    /* Time rule for today */
+    if (fechaEntrada === today) {
+      const nowTime = getCurrentTimeHHMM();
+      if (horaEntrada < nowTime) {
+        setError(
+          "La hora de entrada debe ser posterior a la hora actual."
+        );
+        return;
+      }
+    }
 
-// Always clear previous custom validity first
-if (horaSalidaRef.current) {
-  horaSalidaRef.current.setCustomValidity("");
-}
-
-// Build comparable timestamps (local time, no Date parsing quirks)
-function buildLocalTimestamp(fecha: string, hora: string) {
-  const [year, month, day] = fecha.split("-").map(Number);
-  const [hour, minute] = hora.split(":").map(Number);
-
-  // month - 1 because JS months are 0-based
-  return new Date(year, month - 1, day, hour, minute).getTime();
-}
-
-const entradaTimestamp = buildLocalTimestamp(
-  form.fechaEntrada,
-  form.horaEntrada
-);
-
-const salidaTimestamp = buildLocalTimestamp(
-  form.fechaSalida,
-  form.horaSalida
-);
-
-const now = new Date();
-const todayStr = now.toISOString().split("T")[0];
-
-// If entrada date is today, block past entry times
-if (form.fechaEntrada === todayStr && horaEntradaRef.current) {
-  const [h, m] = form.horaEntrada.split(":").map(Number);
-  const entradaTime = new Date();
-  entradaTime.setHours(h, m, 0, 0);
-
-  if (entradaTime < now) {
-    horaEntradaRef.current.setCustomValidity(
-      "La hora de entrada no puede ser en el pasado"
-    );
-    horaEntradaRef.current.reportValidity();
-    return;
+    const query = new URLSearchParams(form).toString();
+    window.location.href = `/results?${query}`;
   }
-}
 
-// If salida date is today, block past exit times
-if (form.fechaSalida === todayStr && horaSalidaRef.current) {
-  const [h, m] = form.horaSalida.split(":").map(Number);
-  const salidaTime = new Date();
-  salidaTime.setHours(h, m, 0, 0);
+  /* -----------------------------
+     Shared styles
+  ----------------------------- */
+  const labelClass =
+    "mb-1 block text-xs font-medium text-gray-700";
 
-  if (salidaTime < now) {
-    horaSalidaRef.current.setCustomValidity(
-      "La hora de salida no puede ser en el pasado"
-    );
-    horaSalidaRef.current.reportValidity();
-    return;
-  }
-}
+  const inputClass =
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm " +
+    "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none";
 
-// Validate logical order
-if (salidaTimestamp <= entradaTimestamp) {
-  if (horaSalidaRef.current) {
-    horaSalidaRef.current.setCustomValidity(
-      "La fecha y hora de salida debe ser posterior a la entrada"
-    );
-    horaSalidaRef.current.reportValidity();
-  }
-  return;
-}
+  const selectClass =
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm " +
+    "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none " +
+    "disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed";
 
-  // Clear custom validity if everything is OK
-if (horaEntradaRef.current) {
-  horaEntradaRef.current.setCustomValidity("");
-}
-if (horaSalidaRef.current) {
-  horaSalidaRef.current.setCustomValidity("");
-}
-
-  const query = new URLSearchParams(form).toString();
-  window.location.href = `/results?${query}`;
-}
-
-  const labelStyle = {
-  fontSize: "14px",
-  fontWeight: 500,
-  marginBottom: "4px",
-  display: "block",
-  };
-
+  /* -----------------------------
+     Render
+  ----------------------------- */
   return (
-    <section className="px-6 pb-20">
-      <form
-        onSubmit={handleSubmit}
-        className="
-          grid grid-cols-1 gap-3
-          md:grid-cols-7 md:gap-2
-          max-w-6xl mx-auto
-          bg-gray-50 p-4 rounded-xl shadow
-        "
-      >
-        {/* Ciudad (required) */}
-        <div>
-          <label style={labelStyle}>Ciudad</label>
-          <select
-            name="city_id"
-            value={form.city_id}
-            required
-            onChange={(e) => {
-              setForm({
-                ...form,
-                city_id: e.target.value,
-                airport_id: "",
-              });
-            }}
-          >
-            <option value="">Selecciona ciudad</option>
-
-            {cities.map((city) => (
-              <option key={city.id} value={city.id}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Aeropuerto (required SELECT) */}
-        <div>
-          <label style={labelStyle}>Aeropuerto</label>
-          <select
-            name="airport_id"
-            value={form.airport_id}
-            required
-            onChange={handleChange}
-            disabled={!form.city_id}
-          >
-            <option value="">
-              {form.city_id
-                ? "Selecciona aeropuerto"
-                : "Selecciona ciudad primero"}
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-3"
+    >
+      {/* Ciudad */}
+      <div className="md:col-span-2">
+        <label className={labelClass}>Ciudad</label>
+        <select
+          name="city_id"
+          value={form.city_id}
+          onChange={handleChange}
+          className={selectClass}
+        >
+          <option value="">Selecciona ciudad</option>
+          {cities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}
             </option>
+          ))}
+        </select>
+      </div>
 
-            {airports.map((airport) => (
-              <option key={airport.id} value={airport.id}>
-                {airport.name} ({airport.code})
+      {/* Aeropuerto */}
+      <div className="md:col-span-3">
+        <label className={labelClass}>Aeropuerto</label>
+        <select
+          name="airport_id"
+          value={form.airport_id}
+          onChange={handleChange}
+          disabled={!form.city_id}
+          className={selectClass}
+        >
+          <option value="">
+            {form.city_id
+              ? "Selecciona aeropuerto"
+              : "Selecciona ciudad primero"}
+          </option>
+          {airports.map((airport) => (
+            <option key={airport.id} value={airport.id}>
+              {airport.name} ({airport.code})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Vehículo */}
+      <div className="md:col-span-1">
+        <label className={labelClass}>Vehículo</label>
+        <select
+          name="vehiculo"
+          value={form.vehiculo}
+          onChange={handleChange}
+          className={selectClass}
+        >
+          <option value="">Tipo</option>
+          <option value="carro">Carro</option>
+          <option value="moto">Moto</option>
+        </select>
+      </div>
+
+      {/* Entrada */}
+      <div className="md:col-span-3">
+        <label className={labelClass}>Entrada</label>
+        <div className="flex gap-2">
+          <input
+            type="date"
+            name="fechaEntrada"
+            min={today}
+            value={form.fechaEntrada}
+            onChange={handleChange}
+            className={`${inputClass} flex-1`}
+          />
+          <select
+            name="horaEntrada"
+            value={form.horaEntrada}
+            ref={horaEntradaRef}
+            onChange={handleChange}
+            className={`${selectClass} w-28`}
+          >
+            {timeOptions.map((time) => (
+              <option key={time} value={time}>
+                {time}
               </option>
             ))}
           </select>
         </div>
+      </div>
 
-        {/* Vehículo (required SELECT) */}
-        <div>
-          <label style={labelStyle}>Vehículo</label>
-          <select
-            name="vehiculo"
-            value={form.vehiculo}
-            required
+      {/* Salida */}
+      <div className="md:col-span-3">
+        <label className={labelClass}>Salida</label>
+        <div className="flex gap-2">
+          <input
+            type="date"
+            name="fechaSalida"
+            min={today}
+            value={form.fechaSalida}
             onChange={handleChange}
+            className={`${inputClass} flex-1`}
+          />
+          <select
+            name="horaSalida"
+            value={form.horaSalida}
+            ref={horaSalidaRef}
+            onChange={handleChange}
+            className={`${selectClass} w-28`}
           >
-            <option value="">Selecciona vehículo</option>
-            <option value="carro">Carro</option>
-            <option value="moto">Moto</option>
+            {timeOptions.map((time) => (
+              <option key={time} value={time}>
+                {time}
+              </option>
+            ))}
           </select>
         </div>
+      </div>
 
-        {/* Fecha Entrada */}
-        <div>
-        <label style={labelStyle}>Fecha de entrada</label>
-        <input type="date" name="fechaEntrada" required min={today} onChange={handleChange} />
+      {/* Inline validation message */}
+      {error && (
+        <div className="md:col-span-12 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
+      )}
 
-        {/* Hora Entrada */}
-        <div>
-        <label style={labelStyle}>Hora de entrada</label>
-        <input type="time" name="horaEntrada" required ref={horaEntradaRef} onChange={handleChange} />
-        </div>
-
-        {/* Fecha Salida */}
-        <div>
-        <label style={labelStyle}>Fecha de salida</label>
-        <input type="date" name="fechaSalida" required min={today} onChange={handleChange} />
-        </div>
-
-        {/* Hora Salida */}
-        <div>
-        <label style={labelStyle}>Hora de salida</label>
-        <input type="time" name="horaSalida" required ref={horaSalidaRef} onChange={handleChange} />
-        </div>
-
-        {/* Submit */}
-      <button
-        type="submit"
-        className="
-          md:col-span-7
-          bg-black text-white py-3 rounded-lg font-semibold
-          hover:bg-gray-800 transition
-        "
-      >
-        Buscar parqueadero
-      </button>
-      </form>
-    </section>
+      {/* CTA */}
+      <div className="md:col-span-12">
+        <button
+          type="submit"
+          className="
+            w-full rounded-lg
+            bg-yellow-400 py-3
+            text-sm font-semibold text-gray-900
+            hover:bg-yellow-300
+            focus:outline-none focus:ring-2 focus:ring-yellow-400/50
+            transition
+          "
+        >
+          Buscar parqueadero
+        </button>
+      </div>
+    </form>
   );
 }
