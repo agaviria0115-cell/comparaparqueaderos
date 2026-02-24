@@ -1,62 +1,188 @@
-/**
- * COMO FUNCIONA — Skeleton
- * URL: /como-funciona
- * SEO-safe, explanatory page.
- */
+import type { Metadata } from "next";
+import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
+/* =====================================================
+   Metadata — SEO Optimized
+===================================================== */
+
+export const metadata: Metadata = {
+  title:
+    "Cómo Funciona Comparaparqueaderos | Reserva Parqueaderos en Aeropuertos",
+  description:
+    "Descubre cómo funciona Comparaparqueaderos. Compara precios, revisa servicios y contacta directamente parqueaderos cerca a aeropuertos en Colombia.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+/* =====================================================
+   Page
+===================================================== */
 
 export default function ComoFuncionaPage() {
   return (
-    <main>
-      {/* 1️⃣ Page intro */}
-      <section>
-        <h1>¿Cómo funciona Comparaparqueaderos?</h1>
+    <>
+      <Header />
 
-        <p>
-          Comparaparqueaderos te ayuda a encontrar y comparar parqueaderos cerca
-          de aeropuertos en Colombia, de forma clara y sin intermediarios.
-        </p>
-      </section>
+      <main className="bg-white">
+        <div className="mx-auto max-w-5xl px-5 py-12 md:py-16">
 
-      {/* 2️⃣ Step-by-step explanation */}
-      <section>
-        <h2>Busca y compara</h2>
+          {/* H1 */}
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            ¿Cómo Funciona Comparaparqueaderos?
+          </h1>
 
-        <p>
-          Ingresa la ciudad o aeropuerto, las fechas de entrada y salida, y el
-          tipo de vehículo. Te mostramos las opciones disponibles según tu
-          búsqueda.
-        </p>
-      </section>
+          {/* SEO Intro */}
+          <p className="text-lg text-gray-700 mb-8">
+            Comparaparqueaderos te permite encontrar y comparar parqueaderos
+            cerca a aeropuertos en Colombia de forma rápida y sencilla.
+            Puedes revisar precios, servicios y contactar directamente al
+            operador sin intermediarios.
+          </p>
 
-      <section>
-        <h2>Revisa los detalles</h2>
+          {/* ================================
+              STEP SECTION — VISUAL CARDS
+          ================================= */}
 
-        <p>
-          Compara precios, distancia al aeropuerto y servicios como transporte o
-          tipo de cobertura antes de tomar una decisión.
-        </p>
-      </section>
+          <div className="grid md:grid-cols-3 gap-6 mb-14">
 
-      <section>
-        <h2>Reserva directamente</h2>
+            {/* Step 1 */}
+            <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
+              <div className="text-3xl mb-3">🔍</div>
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">
+                1. Busca tu aeropuerto
+              </h2>
+              <p className="text-gray-700">
+                Selecciona la ciudad y el aeropuerto donde necesitas dejar tu
+                vehículo. Indica fechas y tipo de vehículo.
+              </p>
+            </div>
 
-        <p>
-          Cuando eliges un parqueadero, te conectamos directamente con el
-          operador por WhatsApp para que completes la reserva sin cargos
-          adicionales.
-        </p>
-      </section>
+            {/* Step 2 */}
+            <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
+              <div className="text-3xl mb-3">💰</div>
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">
+                2. Compara opciones
+              </h2>
+              <p className="text-gray-700">
+                Revisa precios por día, servicios incluidos, distancia al
+                aeropuerto y tipo de parqueadero (cubierto o al aire libre).
+              </p>
+            </div>
 
-      {/* 3️⃣ Transparency note */}
-      <section>
-        <h2>Sin intermediarios ni pagos en línea</h2>
+            {/* Step 3 */}
+            <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
+              <div className="text-3xl mb-3">📱</div>
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">
+                3. Contacta directamente
+              </h2>
+              <p className="text-gray-700">
+                Una vez elijas la mejor opción, podrás contactar al operador
+                directamente para confirmar tu reserva.
+              </p>
+            </div>
 
-        <p>
-          Comparaparqueaderos no procesa pagos ni confirma reservas. La
-          disponibilidad y las condiciones finales dependen directamente del
-          operador del parqueadero.
-        </p>
-      </section>
-    </main>
+          </div>
+
+          {/* ================================
+              WHY USE US SECTION
+          ================================= */}
+
+          <section className="mb-14">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              ¿Por qué usar Comparaparqueaderos?
+            </h2>
+
+            <ul className="space-y-4 text-gray-700">
+              <li>✔ Comparación rápida de precios</li>
+              <li>✔ Información clara sobre servicios incluidos</li>
+              <li>✔ Contacto directo con el operador</li>
+              <li>✔ Opciones cerca a los principales aeropuertos del país</li>
+            </ul>
+          </section>
+
+          {/* ================================
+              INTERNAL LINKS — SEO BOOST
+          ================================= */}
+
+          <section className="mb-14">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              Aeropuertos populares
+            </h2>
+
+            <p className="text-gray-700 mb-4">
+              Puedes encontrar parqueaderos en:
+            </p>
+
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/aeropuerto/jose-maria-cordova"
+                  className="text-blue-600 hover:underline"
+                >
+                  Parqueaderos en el Aeropuerto José María Córdova
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/aeropuerto/el-dorado"
+                  className="text-blue-600 hover:underline"
+                >
+                  Parqueaderos en el Aeropuerto El Dorado
+                </Link>
+              </li>
+            </ul>
+          </section>
+
+          {/* ================================
+              FAQ SECTION (SEO GOLD)
+          ================================= */}
+
+          <section>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Preguntas Frecuentes
+            </h2>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  ¿Comparaparqueaderos cobra comisión?
+                </h3>
+                <p className="text-gray-700">
+                  No. Somos una plataforma informativa que facilita la
+                  comparación y el contacto directo con operadores.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  ¿La reserva se hace dentro de la plataforma?
+                </h3>
+                <p className="text-gray-700">
+                  Actualmente el contacto se realiza directamente con el
+                  operador del parqueadero.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  ¿Los precios están actualizados?
+                </h3>
+                <p className="text-gray-700">
+                  Trabajamos para mantener la información actualizada, pero
+                  recomendamos confirmar directamente con el operador.
+                </p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <Footer />
+    </>
   );
 }
