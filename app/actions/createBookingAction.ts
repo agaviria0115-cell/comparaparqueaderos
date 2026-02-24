@@ -48,7 +48,14 @@ export async function createBookingAction(formData: FormData) {
     .eq("is_active", true)
     .single();
 
-  if (!parking || !parking.operators?.is_active) {
+  const operator = parking?.operators?.[0];
+
+  if (
+    !parking ||
+    !operator ||
+    !operator.is_active ||
+    !operator.whatsapp_number
+  ) {
     throw new Error("Invalid parking or inactive operator");
   }
 
@@ -109,7 +116,7 @@ Enviado desde *ComparaParqueaderos.com*
 `.trim();
 
   const encodedMessage = encodeURIComponent(whatsappMessage);
-  const whatsappNumber = parking.operators.whatsapp_number.replace(/\D/g, "");
+  const whatsappNumber = operator.whatsapp_number.replace(/\D/g, "");
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 

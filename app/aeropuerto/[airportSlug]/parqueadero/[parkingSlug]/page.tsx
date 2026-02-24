@@ -80,6 +80,10 @@ export default async function ParkingPage({ params, searchParams }: Props) {
 
   if (!airport) return notFound();
 
+  const city = Array.isArray(airport.city)
+  ? airport.city[0]
+  : airport.city;
+
   const { data: location } = await supabase
     .from("parking_locations")
     .select(`
@@ -175,19 +179,21 @@ export default async function ParkingPage({ params, searchParams }: Props) {
       ? offers.find((o) => o.id === selectedOfferId)
       : null;
 
-  if (hasSearchParams) {
-    if (!selectedOfferId || !selectedOffer) {
-      return notFound();
-    }
-
-    if (
-      !selectedOffer.operators ||
-      !selectedOffer.operators.is_active ||
-      !selectedOffer.operators.whatsapp_number
-    ) {
-      return notFound();
-    }
+if (hasSearchParams) {
+  if (!selectedOfferId || !selectedOffer) {
+    return notFound();
   }
+
+  const operator = selectedOffer?.operators?.[0];
+
+  if (
+    !operator ||
+    !operator.is_active ||
+    !operator.whatsapp_number
+  ) {
+    return notFound();
+  }
+}
 
   const MobileSidebar = () => (
     <div className="lg:hidden">
@@ -232,10 +238,10 @@ export default async function ParkingPage({ params, searchParams }: Props) {
         <ul className="space-y-1 text-sm text-gray-700 mb-6">
           {offers[0].services
             .split(",")
-            .map((s) => s.trim())
+            .map((s: string) => s.trim())
             .filter(Boolean)
             .slice(0, 4)
-            .map((service) => (
+            .map((service: string) => (
               <li key={service} className="flex items-center gap-2">
                 <span className="w-4 text-center text-blue-600 font-semibold">✓</span>
                 <span>{service}</span>
@@ -373,10 +379,10 @@ export default async function ParkingPage({ params, searchParams }: Props) {
               {offers[0]?.services &&
                 offers[0].services
                   .split(",")
-                  .map((s) => s.trim())
+                  .map((s: string) => s.trim())
                   .filter(Boolean)
                   .slice(0, 4)
-                  .map((service) => (
+                  .map((service: string) => (
                     <li key={service} className="flex items-center gap-2">
                       <span className="w-4 text-center text-blue-600 font-semibold">✓</span>
                       <span>{service}</span>
@@ -387,10 +393,10 @@ export default async function ParkingPage({ params, searchParams }: Props) {
                 offers[0]?.offer_features &&
                 offers[0].offer_features
                   .split(",")
-                  .map((f) => f.trim())
+                  .map((f: string) => f.trim())
                   .filter(Boolean)
                   .slice(0, 2)
-                  .map((feature) => (
+                  .map((feature: string) => (
                     <li key={feature} className="flex items-center gap-2">
                       <span className="w-4 text-center text-[13px] leading-none">⭐</span>
                       <span className="font-medium">{feature}</span>
@@ -489,7 +495,7 @@ export default async function ParkingPage({ params, searchParams }: Props) {
           <div className="mt-6 text-center">
             {(() => {
               const params = new URLSearchParams({
-                city_id: airport.city.id,
+                city_id: city.id,
                 airport_id: airport.id,
                 vehiculo: sp.vehiculo ?? "",
                 fechaEntrada: sp.fechaEntrada ?? "",
@@ -528,7 +534,7 @@ export default async function ParkingPage({ params, searchParams }: Props) {
                 ? {
                     "@type": "PostalAddress",
                     streetAddress: location.address,
-                    addressLocality: airport?.city?.name || undefined,
+                    addressLocality: city?.name || undefined,
                     addressCountry: "CO"
                   }
                 : undefined,
@@ -554,8 +560,8 @@ export default async function ParkingPage({ params, searchParams }: Props) {
             <a href="/" className="hover:underline">Inicio</a>
             {airport?.city && (
               <>
-                / <a href={`/ciudad/${airport.city.slug}`} className="hover:underline">
-                  {airport.city.name}
+                / <a href={`/ciudad/${city.slug}`} className="hover:underline">
+                  {city.name}
                 </a>
               </>
             )}
@@ -662,10 +668,10 @@ export default async function ParkingPage({ params, searchParams }: Props) {
                             <ul className="space-y-1 text-sm text-gray-700 mb-3">
                               {offer.offer_features
                                 .split(",")
-                                .map((f) => f.trim())
+                                .map((f: string) => f.trim())
                                 .filter(Boolean)
                                 .slice(0, 2)
-                                .map((feature) => (
+                                .map((feature: string) => (
                                   <li key={feature} className="flex items-center justify-center gap-2">
                                     <span className="text-gray-400">•</span>
                                     <span>{feature}</span>

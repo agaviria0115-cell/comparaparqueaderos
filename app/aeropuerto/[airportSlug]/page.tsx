@@ -88,6 +88,10 @@ export default async function AirportPage({
 
   if (!airport) return notFound();
 
+  const city = Array.isArray(airport.city)
+  ? airport.city[0]
+  : airport.city;
+
   /* -----------------------------
      2️⃣ Fetch parking offers (include distance)
   ----------------------------- */
@@ -161,8 +165,8 @@ export default async function AirportPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: airport.city.name,
-        item: `${siteUrl}/ciudad/${airport.city.slug}`,
+        name: city.name,
+        item: `${siteUrl}/ciudad/${city.slug}`,
       },
       {
         "@type": "ListItem",
@@ -242,8 +246,8 @@ export default async function AirportPage({
           <nav className="text-sm text-gray-600 mb-6">
             <Link href="/" className="hover:underline">Inicio</Link>
             <span className="mx-1">/</span>
-            <Link href={`/ciudad/${airport.city.slug}`} className="hover:underline">
-              {airport.city.name}
+            <Link href={`/ciudad/${city.slug}`} className="hover:underline">
+              {city.name}
             </Link>
             <span className="mx-1">/</span>
             <span className="text-gray-800">Aeropuerto {airport.name}</span>
@@ -255,7 +259,7 @@ export default async function AirportPage({
               Parqueaderos en el Aeropuerto {airport.name}
             </h1>
             <p className="mt-2 text-gray-600">
-              Encuentra {offerCount} opciones de parqueaderos cerca del Aeropuerto {airport.name} en {airport.city.name}. 
+              Encuentra {offerCount} opciones de parqueaderos cerca del Aeropuerto {airport.name} en {city.name}. 
               Compara precios por día, opciones cubiertas y al aire libre.
               {lowestPrice && (
                 <> Tarifas desde {offers?.[0].currency} {lowestPrice.toLocaleString("es-CO")} por día.</>
@@ -266,7 +270,7 @@ export default async function AirportPage({
             {/* SEO Intro Block */}
             <section className="mb-12 max-w-4xl text-gray-700 leading-relaxed space-y-4">
               <p>
-                El Aeropuerto {airport.name} es uno de los principales puntos de salida y llegada en {airport.city.name}. 
+                El Aeropuerto {airport.name} es uno de los principales puntos de salida y llegada en {city.name}. 
                 Contar con un parqueadero cercano al aeropuerto te permite ahorrar tiempo, evitar contratiempos y 
                 viajar con mayor tranquilidad.
               </p>
