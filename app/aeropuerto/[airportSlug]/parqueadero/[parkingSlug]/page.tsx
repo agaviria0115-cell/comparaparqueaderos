@@ -179,21 +179,21 @@ export default async function ParkingPage({ params, searchParams }: Props) {
       ? offers.find((o) => o.id === selectedOfferId)
       : null;
 
-if (hasSearchParams) {
-  if (!selectedOfferId || !selectedOffer) {
-    return notFound();
-  }
+  if (hasSearchParams) {
+    if (!selectedOfferId || !selectedOffer) {
+      return notFound();
+    }
 
-  const operator = selectedOffer?.operators?.[0];
+    const operator = selectedOffer.operators;
 
-  if (
-    !operator ||
-    !operator.is_active ||
-    !operator.whatsapp_number
-  ) {
-    return notFound();
+    if (
+      !operator ||
+      !operator.is_active ||
+      !operator.whatsapp_number
+    ) {
+      return notFound();
+    }
   }
-}
 
   const MobileSidebar = () => (
     <div className="lg:hidden">
