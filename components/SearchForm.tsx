@@ -54,9 +54,15 @@ export default function SearchForm() {
   const horaSalidaRef = useRef<HTMLSelectElement>(null);
   const horaEntradaRef = useRef<HTMLSelectElement>(null);
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date(
+  Date.now() - new Date().getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split("T")[0];
 
-  const tomorrow = new Date(Date.now() + 86400000)
+  const tomorrow = new Date(
+    Date.now() - new Date().getTimezoneOffset() * 60000 + 86400000
+  )
     .toISOString()
     .split("T")[0];
 
