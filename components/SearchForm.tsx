@@ -55,16 +55,23 @@ export default function SearchForm() {
   const horaEntradaRef = useRef<HTMLSelectElement>(null);
 
   const today = new Date().toISOString().split("T")[0];
+
+  const tomorrow = new Date(Date.now() + 86400000)
+    .toISOString()
+    .split("T")[0];
+
   const timeOptions = generateTimeOptions(15);
+
+  const nowRounded = getCurrentTimeHHMM();
 
   const [form, setForm] = useState({
     city_id: "",
     airport_id: "",
     vehiculo: "",
-    fechaEntrada: "",
-    horaEntrada: "12:00",
-    fechaSalida: "",
-    horaSalida: "12:00",
+    fechaEntrada: today,
+    horaEntrada: nowRounded,
+    fechaSalida: tomorrow,
+    horaSalida: nowRounded,
   });
 
   /* -----------------------------
