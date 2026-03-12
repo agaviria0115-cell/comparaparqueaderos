@@ -200,7 +200,7 @@ if (hasSearchParams) {
   const MobileSidebar = () => (
     <div className="lg:hidden">
       {offers && offers[0]?.logo_url && (
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-10">
           <img
             src={offers[0].logo_url}
             alt={`${location.name} logo`}

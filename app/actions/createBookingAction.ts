@@ -48,15 +48,42 @@ export async function createBookingAction(formData: FormData) {
     .eq("is_active", true)
     .single();
 
-  const operator = parking?.operators?.[0];
+    if (!parking) {
+      throw new Error("Invalid parking");
+    }
 
-  if (
-    !parking ||
-    !operator ||
-    !operator.is_active ||
-    !operator.whatsapp_number
-  ) {
-    throw new Error("Invalid parking or inactive operator");
+    const { data: operator } = await supabase
+      .from("operators")
+      .select("id, whatsapp_number, is_active")
+      .eq("id", parking.operator_id)
+      .single();
+
+    if (!operator || !operator.is_active || !operator.whatsapp_number) {
+      throw new Error("Invalid parking or inactive operator");
+    }
+
+  function formatDateTime(date: string, time: string) {
+    const [year, month, day] = date.split("-").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
+
+    const d = new Date(year, month - 1, day, hours, minutes);
+
+    const months = [
+      "Ene","Feb","Mar","Abr","May","Jun",
+      "Jul","Ago","Sep","Oct","Nov","Dic"
+    ];
+
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mmm = months[d.getMonth()];
+    const yyyy = d.getFullYear();
+
+    const formattedTime = d.toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    return `${dd} ${mmm} ${yyyy} - ${formattedTime}`;
   }
 
   const start = new Date(`${fechaEntrada}T${horaEntrada}`);
@@ -95,6 +122,9 @@ export async function createBookingAction(formData: FormData) {
   const coveredLabel = parking.is_covered ? "Bajo Techo" : "Aire Libre";
   const shortReference = "CP-" + booking.id.slice(-6).toUpperCase();
 
+  const formattedEntrada = formatDateTime(fechaEntrada, horaEntrada);
+  const formattedSalida = formatDateTime(fechaSalida, horaSalida);
+
   const whatsappMessage = `
 Hola
 
@@ -102,8 +132,8 @@ Quiero reservar un parqueadero en *${parking.name}*,
 con los siguientes datos:
 
 • *Tipo de parqueadero:* ${coveredLabel}
-• *Entrada:* ${fechaEntrada} - ${horaEntrada}
-• *Salida:* ${fechaSalida} - ${horaSalida}
+• *Entrada:* ${formattedEntrada}
+• *Salida:* ${formattedSalida}
 • *Precio por día:* $${parking.price_per_day.toLocaleString("es-CO")}
 • *Total:* $${totalPrice.toLocaleString("es-CO")}
 
