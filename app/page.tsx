@@ -44,15 +44,15 @@ export default function HomePage() {
           </div>
 
           {/* Content */}
-          <div className="relative mx-auto max-w-7xl px-6 py-16 md:py-8">
+          <div className="relative mx-auto max-w-7xl px-6 py-10 md:py-8">
             {/* Text */}
-            <div className="mx-auto mb-12 max-w-2xl text-center text-white">
-              <h1 className="mb-5 text-4xl font-extrabold leading-tight md:text-5xl drop-shadow-sm">
+            <div className="mx-auto mb-6 md:mb-12 max-w-2xl text-center text-white">
+              <h1 className="mb-5 text-3xl font-extrabold leading-tight md:text-5xl drop-shadow-sm">
                 Parqueaderos cerca del{" "}
                 <span className="text-yellow-400">aeropuerto</span>
               </h1>
 
-              <p className="mb-10 text-base text-blue-100 md:text-lg leading-relaxed">
+              <p className="mb-6 md:mb-10 text-base text-blue-100 md:text-lg leading-relaxed">
                 Encuentra y compara parqueaderos oficiales y privados cerca de los
                 principales aeropuertos de Colombia al mejor precio, sin sorpresas.
               </p>
@@ -64,7 +64,7 @@ export default function HomePage() {
             </div>
 
             {/* Space from bottom of hero */}
-            <div className="h-10 md:h-14" />
+            <div className="h-4 md:h-14" />
           </div>
         </section>
 
