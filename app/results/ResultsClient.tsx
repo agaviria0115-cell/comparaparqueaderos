@@ -267,7 +267,11 @@ export default function ResultsClient() {
                   <div className="h-full w-full bg-white rounded-md">
                     <div className="h-full px-4 flex items-center justify-center text-sm text-gray-500">
                       {p.logo_url ? (
-                        <img src={p.logo_url} alt={`Logo ${p.name}`} className="max-h-32 max-w-full object-contain" />
+                        <img
+                          src={p.logo_url}
+                          alt={`Logo ${p.name}`}
+                          className="max-h-20 max-w-[80%] object-contain opacity-90"
+                        />
                       ) : (
                         <span>LOGO</span>
                       )}

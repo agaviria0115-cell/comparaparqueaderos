@@ -3,14 +3,15 @@ import Link from "next/link";
 /**
  * FOOTER — SEO-safe, launch version
  * Reflects current live coverage only (Medellín + JMC).
- * Expanded later as more cities/airports are added.
  */
 
 export default function Footer() {
   return (
     <footer className="bg-gray-100 border-t border-gray-200">
       <div className="mx-auto max-w-7xl px-6 py-12">
+
         <nav className="grid grid-cols-2 gap-8 md:grid-cols-4">
+
           {/* Cities */}
           <ul className="space-y-3 text-sm">
             <li className="font-semibold text-gray-900">
@@ -86,12 +87,14 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
+
         </nav>
 
         {/* Bottom line */}
         <div className="mt-10 text-xs text-gray-500">
           © {new Date().getFullYear()} ComparaParqueaderos
         </div>
+
       </div>
     </footer>
   );

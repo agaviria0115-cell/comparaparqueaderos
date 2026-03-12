@@ -20,10 +20,26 @@ function generateTimeOptions(intervalMinutes = 15) {
   return times;
 }
 
-function getCurrentTimeHHMM() {
+function getCurrentTimeHHMM(intervalMinutes = 15) {
   const now = new Date();
-  const hh = String(now.getHours()).padStart(2, "0");
-  const mm = String(now.getMinutes()).padStart(2, "0");
+
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+
+  const remainder = minutes % intervalMinutes;
+
+  if (remainder !== 0) {
+    minutes += intervalMinutes - remainder;
+  }
+
+  if (minutes === 60) {
+    hours += 1;
+    minutes = 0;
+  }
+
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(minutes).padStart(2, "0");
+
   return `${hh}:${mm}`;
 }
 
@@ -88,20 +104,19 @@ export default function SearchForm() {
   /* -----------------------------
      Auto-fix past time when date = today
   ----------------------------- */
-  useEffect(() => {
-    if (!form.fechaEntrada) return;
+useEffect(() => {
+  if (!form.fechaEntrada) return;
 
-    if (form.fechaEntrada === today) {
-      const nowTime = getCurrentTimeHHMM();
+  if (form.fechaEntrada === today) {
+    const nowTime = getCurrentTimeHHMM();
 
-      if (form.horaEntrada < nowTime) {
-        setForm((prev) => ({
-          ...prev,
-          horaEntrada: nowTime,
-        }));
-      }
-    }
-  }, [form.fechaEntrada]);
+    setForm((prev) => ({
+      ...prev,
+      horaEntrada: prev.horaEntrada < nowTime ? nowTime : prev.horaEntrada,
+      horaSalida: prev.horaSalida < nowTime ? nowTime : prev.horaSalida,
+    }));
+  }
+}, [form.fechaEntrada]);
 
   /* -----------------------------
      Handlers
@@ -172,6 +187,17 @@ export default function SearchForm() {
     if (fechaSalida < fechaEntrada) {
       setError(
         "La fecha de salida debe ser igual o posterior a la fecha de entrada."
+      );
+      return;
+    }
+
+    /* Date + time validation */
+    const entradaDateTime = new Date(`${fechaEntrada}T${horaEntrada}`);
+    const salidaDateTime = new Date(`${fechaSalida}T${horaSalida}`);
+
+    if (salidaDateTime <= entradaDateTime) {
+      setError(
+        "La fecha y hora de salida deben ser posteriores a la fecha y hora de entrada."
       );
       return;
     }
@@ -274,7 +300,7 @@ export default function SearchForm() {
       {/* Entrada */}
       <div className="md:col-span-3">
         <label className={labelClass}>Entrada</label>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <input
             type="date"
             name="fechaEntrada"
@@ -302,7 +328,7 @@ export default function SearchForm() {
       {/* Salida */}
       <div className="md:col-span-3">
         <label className={labelClass}>Salida</label>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <input
             type="date"
             name="fechaSalida"

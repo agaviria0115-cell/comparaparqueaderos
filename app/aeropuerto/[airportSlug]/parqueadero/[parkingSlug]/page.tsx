@@ -200,11 +200,11 @@ if (hasSearchParams) {
   const MobileSidebar = () => (
     <div className="lg:hidden">
       {offers && offers[0]?.logo_url && (
-        <div className="w-full mb-6">
+        <div className="flex justify-center mb-6">
           <img
             src={offers[0].logo_url}
             alt={`${location.name} logo`}
-            className="w-full h-40 object-contain"
+            className="h-24 w-auto object-contain"
           />
         </div>
       )}
@@ -253,7 +253,10 @@ if (hasSearchParams) {
       )}
 
       {hasSearchParams && (
-        <div id="mobile-search-summary" className="bg-blue-50 border border-gray-200 rounded-xl p-4 mb-6">
+        <div
+          id="mobile-search-summary"
+          className="bg-blue-50 border border-gray-200 rounded-xl p-4 mb-6 group-has-[#booking-toggle-mobile:checked]:hidden"
+        >
           <ul className="space-y-2 text-sm">
             {sp?.tipo && (
               <li>
@@ -448,7 +451,7 @@ if (hasSearchParams) {
                       className="peer hidden"
                     />
 
-                    <div className="hidden peer-checked:block mt-2 mb-3">
+                    <div className="hidden peer-checked:block -mx-2 mt-3">
                       <div className="pt-1 mb-4">
                         <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
                           Total
@@ -556,7 +559,7 @@ if (hasSearchParams) {
         />
       )}
       <Header />
-      <main className="min-h-screen relative">
+      <main className="min-h-screen relative group">
         <div className="mx-auto max-w-7xl px-4 lg:px-6 py-6 lg:py-10">
           <nav className="hidden lg:block text-sm text-gray-600 mb-6">
             <a href="/" className="hover:underline">Inicio</a>
@@ -743,7 +746,7 @@ if (hasSearchParams) {
 
             {/* Booking Form */}
             {sp?.vehiculo && (
-              <div className="hidden peer-checked:block bg-white border-t border-gray-200 p-4">
+              <div className="hidden peer-checked:block bg-white border-t border-gray-200 pt-8 pb-4 px-4">
                 <BookingForm parking={selectedOffer} searchParams={sp} />
               </div>
             )}
