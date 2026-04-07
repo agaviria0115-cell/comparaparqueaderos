@@ -20,6 +20,8 @@ type PricingResult = {
   totalPrice: number;
   pricingType: "simple" | "optimized";
   breakdown: PriceBreakdownItem[];
+  savings: number;
+  savingsPercent: number;
 };
 
 export function calculatePrice(
