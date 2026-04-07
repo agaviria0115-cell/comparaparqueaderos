@@ -6,6 +6,7 @@ import { supabase } from "@/app/lib/supabase";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { calculatePrice } from "@/app/lib/pricing";
 
 /* -------------------------------------------------------
    Helpers
@@ -107,6 +108,8 @@ export default function ResultsClient() {
   } | null>(null);
 
   const [parkings, setParkings] = useState<any[]>([]);
+  const [pricingRows, setPricingRows] = useState<any[]>([]);
+  console.log("pricingRows:", pricingRows);
   const [loadingParkings, setLoadingParkings] = useState(true);
 
   const [sortBy, setSortBy] = useState<"price" | "price_desc" | "distance">("price");
@@ -155,6 +158,8 @@ export default function ResultsClient() {
         slug,
         price_per_day,
         is_covered,
+        vehicle,
+        pricing_strategy,
         logo_url,
         services,
         offer_features,
@@ -168,10 +173,30 @@ export default function ResultsClient() {
       .eq("airport_id", airport_id)
       .eq("is_active", true)
       .eq("vehicle", vehicleValue)
-      .then(({ data }) => {
-        setParkings(data || []);
+      .then(async ({ data }) => {
+        const parkingsData = data || [];
+
+        setParkings(parkingsData);
+
+        // 👉 STEP 3A: extract parking IDs
+        const parkingIds = parkingsData.map((p) => p.id);
+
+        if (parkingIds.length === 0) {
+          setLoadingParkings(false);
+          return;
+        }
+
+        // 👉 STEP 3B: fetch pricing rows
+        const { data: pricingData } = await supabase
+          .from("parking_prices")
+          .select("*")
+          .in("parking_id", parkingIds);
+
+        setPricingRows(pricingData || []);
+
         setLoadingParkings(false);
       });
+
   }, [airport_id, vehiculo]);
 
   const filteredParkings = parkings.filter((p) => {
@@ -180,16 +205,38 @@ export default function ResultsClient() {
     return true;
   });
 
-  const sortedParkings = [...filteredParkings].sort((a, b) => {
-    if (sortBy === "price") return a.price_per_day - b.price_per_day;
-    if (sortBy === "price_desc") return b.price_per_day - a.price_per_day;
-    if (sortBy === "distance") {
-      if (a.distance_km == null) return 1;
-      if (b.distance_km == null) return -1;
-      return a.distance_km - b.distance_km;
-    }
-    return 0;
+    const parkingsWithPricing = filteredParkings.map((p) => {
+    // 👉 STEP 4A: get packages for this parking
+const packages = pricingRows.filter(
+  (pr) =>
+    pr.parking_id === p.id &&
+    pr.vehicle === p.vehicle &&
+    pr.coverage === (p.is_covered ? "Cubierto" : "Aire Libre")
+);
+
+console.log("PRICING STRATEGY:", p.name, p.pricing_strategy);
+
+    // 👉 STEP 4B: calculate price
+    const pricing = calculatePrice(p, packages, totalDays);
+
+    return {
+      ...p,
+      pricing,
+    };
   });
+
+const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
+  if (sortBy === "price") return a.pricing.totalPrice - b.pricing.totalPrice;
+  if (sortBy === "price_desc") return b.pricing.totalPrice - a.pricing.totalPrice;
+
+  if (sortBy === "distance") {
+    if (a.distance_km == null) return 1;
+    if (b.distance_km == null) return -1;
+    return a.distance_km - b.distance_km;
+  }
+
+  return 0;
+});
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -248,7 +295,7 @@ export default function ResultsClient() {
 
         {!loadingParkings &&
           sortedParkings.map((p) => {
-            const totalPrice = p.price_per_day * totalDays;
+            const totalPrice = p.pricing.totalPrice;
             const offerFeatures = extractOfferFeatures(p.offer_features);
 
             return (
@@ -318,8 +365,16 @@ export default function ResultsClient() {
                       <div className="text-2xl font-bold text-green-700">
                         $ {totalPrice.toLocaleString("es-CO", { maximumFractionDigits: 0 })}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        Total por {totalDays} {totalDays === 1 ? "día" : "días"}
+                      <div className="text-[13px] text-gray-500">
+                        {p.pricing.savingsPercent > 0 ? (
+                          <span className="text-orange-600 font-medium">
+                            Ahorra {p.pricing.savingsPercent}% vs tarifa diaria
+                          </span>
+                        ) : (
+                          <>
+                            Total por {totalDays} {totalDays === 1 ? "día" : "días"}
+                          </>
+                        )}
                       </div>
                     </div>
 
