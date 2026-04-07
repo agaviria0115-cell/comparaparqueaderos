@@ -16,27 +16,22 @@ type PriceBreakdownItem = {
   price: number;
 };
 
-type PricingResult = {
-  totalPrice: number;
-  pricingType: "simple" | "optimized";
-  breakdown: PriceBreakdownItem[];
-  savings: number;
-  savingsPercent: number;
-};
-
 export function calculatePrice(
   parking: Parking,
   packages: PricingPackage[] = [],
   totalDays: number
 ): PricingResult {
+
   // --- SAFETY ---
-  if (!parking || totalDays <= 0) {
-    return {
-      totalPrice: 0,
-      pricingType: "simple",
-      breakdown: [],
-    };
-  }
+if (!parking || totalDays <= 0) {
+  return {
+    totalPrice: 0,
+    pricingType: "simple",
+    breakdown: [],
+    savings: 0,
+    savingsPercent: 0,
+  };
+}
 
   const strategy = parking.pricing_strategy || "simple";
 
