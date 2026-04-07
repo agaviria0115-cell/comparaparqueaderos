@@ -16,6 +16,14 @@ type PriceBreakdownItem = {
   price: number;
 };
 
+type PricingResult = {
+  totalPrice: number;
+  pricingType: "simple" | "optimized";
+  breakdown: PriceBreakdownItem[];
+  savings: number;
+  savingsPercent: number;
+};
+
 export function calculatePrice(
   parking: Parking,
   packages: PricingPackage[] = [],
@@ -23,15 +31,15 @@ export function calculatePrice(
 ): PricingResult {
 
   // --- SAFETY ---
-if (!parking || totalDays <= 0) {
-  return {
-    totalPrice: 0,
-    pricingType: "simple",
-    breakdown: [],
-    savings: 0,
-    savingsPercent: 0,
-  };
-}
+  if (!parking || totalDays <= 0) {
+    return {
+      totalPrice: 0,
+      pricingType: "simple",
+      breakdown: [],
+      savings: 0,
+      savingsPercent: 0,
+    };
+  }
 
   const strategy = parking.pricing_strategy || "simple";
 
@@ -64,7 +72,7 @@ if (!parking || totalDays <= 0) {
   const validPackages = packages
     .filter(
       (p) =>
-        p.duration_days > 1 && // exclude day
+        p.duration_days > 1 && // exclude daily packages
         p.price_total > 0
     )
     .sort((a, b) => b.duration_days - a.duration_days); // DESC
@@ -94,7 +102,7 @@ if (!parking || totalDays <= 0) {
     }
   }
 
-  // 3. Fill remaining with daily price (ALWAYS from parkings table)
+  // 3. Fill remaining with daily price (fallback)
   if (remainingDays > 0) {
     const dailyPrice = parking.price_per_day * remainingDays;
 
@@ -107,16 +115,21 @@ if (!parking || totalDays <= 0) {
     totalPrice += dailyPrice;
   }
 
-const baseline = parking.price_per_day * totalDays;
-const savings = baseline - totalPrice;
-const savingsPercent =
-  baseline > 0 ? Math.round((savings / baseline) * 100) : 0;
+  // =====================================================
+  // SAVINGS CALCULATION
+  // =====================================================
+  const baseline = parking.price_per_day * totalDays;
 
-return {
-  totalPrice,
-  pricingType: "optimized",
-  breakdown,
-  savings,
-  savingsPercent,
-};
+  const savings = Math.max(0, baseline - totalPrice);
+
+  const savingsPercent =
+    baseline > 0 ? Math.round((savings / baseline) * 100) : 0;
+
+  return {
+    totalPrice,
+    pricingType: "optimized",
+    breakdown,
+    savings,
+    savingsPercent,
+  };
 }
