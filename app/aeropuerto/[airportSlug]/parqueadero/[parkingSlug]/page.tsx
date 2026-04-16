@@ -132,6 +132,15 @@ export default async function ParkingPage({ params, searchParams }: Props) {
     .eq("parking_location_id", location.id)
     .eq("is_active", true);
 
+  const vehicleFromSearch =
+    sp?.vehiculo === "carro" ? "Carro" :
+    sp?.vehiculo === "moto" ? "Moto" :
+    null;
+
+  const filteredOffers = vehicleFromSearch
+    ? offers?.filter((o) => o.vehicle === vehicleFromSearch)
+    : offers;
+
   function formatDateTime(date?: string, time?: string) {
     if (!date || !time) return "";
     const [year, month, day] = date.split("-").map(Number);
@@ -174,10 +183,12 @@ export default async function ParkingPage({ params, searchParams }: Props) {
     sp?.offerId
   );
 
-  const selectedOffer =
-    offers && selectedOfferId
-      ? offers.find((o) => o.id === selectedOfferId)
-      : null;
+const selectedOffer =
+  filteredOffers && selectedOfferId
+    ? filteredOffers.find((o) => o.id === selectedOfferId)
+    : null;
+
+  const displayOffer = selectedOffer || filteredOffers?.[0]
 
 if (hasSearchParams) {
   if (!selectedOfferId || !selectedOffer) {
@@ -199,10 +210,10 @@ if (hasSearchParams) {
 
   const MobileSidebar = () => (
     <div className="lg:hidden">
-      {offers && offers[0]?.logo_url && (
+      {offers && displayOffer?.logo_url && (
         <div className="flex justify-center mb-10">
           <img
-            src={offers[0].logo_url}
+            src={displayOffer.logo_url}
             alt={`${location.name} logo`}
             className="h-24 w-auto object-contain"
           />
@@ -222,23 +233,23 @@ if (hasSearchParams) {
         </div>
       )}
 
-      {offers && offers[0]?.distance_km && (
+      {offers && displayOffer?.distance_km && (
         <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
           <span className="text-gray-500">📍</span>
           <span>
             <strong>
-              {offers[0].distance_km < 1
-                ? `${Math.round(offers[0].distance_km * 1000)} m`
-                : `${Number(offers[0].distance_km.toFixed(1))} km`}
+              {displayOffer.distance_km < 1
+                ? `${Math.round(displayOffer.distance_km * 1000)} m`
+                : `${Number(displayOffer.distance_km.toFixed(1))} km`}
             </strong>{" "}
             del aeropuerto
           </span>
         </div>
       )}
 
-      {offers && offers[0]?.services && (
+      {offers && displayOffer?.services && (
         <ul className="space-y-1 text-sm text-gray-700 mb-6">
-          {offers[0].services
+          {displayOffer.services
             .split(",")
             .map((s: string) => s.trim())
             .filter(Boolean)
@@ -355,34 +366,34 @@ if (hasSearchParams) {
     <div className="hidden lg:block">
       <div>
         <div className="space-y-6 border border-gray-200 rounded-xl p-4">
-          {offers && offers[0]?.logo_url && (
+          {offers && displayOffer?.logo_url && (
             <div className="flex justify-center p-4">
               <img
-                src={offers[0].logo_url}
+                src={displayOffer.logo_url}
                 alt={`${location.name} logo`}
                 className="h-[120px] w-auto object-contain"
               />
             </div>
           )}
 
-          {offers && offers[0]?.distance_km && (
+          {offers && displayOffer?.distance_km && (
             <div className="text-base text-gray-700 flex items-center gap-2">
               <span className="text-gray-500">📍</span>
               <span>
                 <strong>
-                  {offers[0].distance_km < 1
-                    ? `${Math.round(offers[0].distance_km * 1000)} m`
-                    : `${Number(offers[0].distance_km.toFixed(1))} km`}
+                  {displayOffer.distance_km < 1
+                    ? `${Math.round(displayOffer.distance_km * 1000)} m`
+                    : `${Number(displayOffer.distance_km.toFixed(1))} km`}
                 </strong>{" "}
                 del aeropuerto
               </span>
             </div>
           )}
 
-          {(offers && (offers[0]?.services || (sp?.vehiculo && offers[0]?.offer_features))) && (
+          {(offers && (displayOffer?.services || (sp?.vehiculo && displayOffer?.offer_features))) && (
             <ul className="space-y-1 text-[13px] text-gray-700">
-              {offers[0]?.services &&
-                offers[0].services
+              {displayOffer?.services &&
+                displayOffer.services
                   .split(",")
                   .map((s: string) => s.trim())
                   .filter(Boolean)
@@ -395,8 +406,8 @@ if (hasSearchParams) {
                   ))}
 
               {sp?.vehiculo &&
-                offers[0]?.offer_features &&
-                offers[0].offer_features
+                displayOffer?.offer_features &&
+                displayOffer.offer_features
                   .split(",")
                   .map((f: string) => f.trim())
                   .filter(Boolean)
@@ -650,7 +661,7 @@ if (hasSearchParams) {
                   <p>No hay ofertas activas en este momento.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {offers.map((offer) => (
+                    {filteredOffers?.map((offer) => (
                       <article
                         key={offer.id}
                         className={`border rounded-lg overflow-hidden h-full flex flex-col justify-between ${

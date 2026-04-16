@@ -7,6 +7,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { calculatePrice } from "@/app/lib/pricing";
+import type { PriceBreakdownItem } from "@/app/lib/pricing";
 
 /* -------------------------------------------------------
    Helpers
@@ -48,6 +49,33 @@ function formatDistance(distanceKm: number | null) {
   return `${Number(distanceKm.toFixed(1))} km`;
 }
 
+function formatDurationFromBreakdown(breakdown: any[]) {
+  let totalDays = 0;
+  let totalHours = 0;
+
+  breakdown.forEach((item) => {
+    if (item.type === "day" || item.type === "week" || item.type === "quincena" || item.type === "month") {
+      totalDays += item.days;
+    }
+
+    if (item.type === "hour") {
+      totalHours += Math.round(item.days * 24);
+    }
+  });
+
+  let parts = [];
+
+  if (totalDays > 0) {
+    parts.push(`${totalDays} ${totalDays === 1 ? "día" : "días"}`);
+  }
+
+  if (totalHours > 0) {
+    parts.push(`+ ${totalHours} ${totalHours === 1 ? "hora" : "horas"}`);
+  }
+
+  return parts.join(" ");
+}
+
 /* -------------------------------------------------------
    Offer features mapping
 ------------------------------------------------------- */
@@ -78,9 +106,22 @@ function extractOfferFeatures(raw: string | null) {
 
   return raw
     .split(",")
-    .map((f) => normalizeFeature(f))
-    .map((key) => OFFER_FEATURE_MAP[key])
+    .map((f) => f.trim())
     .filter(Boolean)
+    .map((original) => {
+      const key = normalizeFeature(original);
+
+      // 👉 Try to map to known feature
+      if (OFFER_FEATURE_MAP[key]) {
+        return OFFER_FEATURE_MAP[key];
+      }
+
+      // 👉 Fallback: show raw text if not mapped
+      return {
+        label: original, // use original text from DB
+        icon: "⭐",
+      };
+    })
     .slice(0, 2);
 }
 
@@ -116,10 +157,14 @@ export default function ResultsClient() {
   const [filterCovered, setFilterCovered] = useState(false);
   const [filterOpenAir, setFilterOpenAir] = useState(false);
 
-  const totalDays =
-    fechaEntrada && horaEntrada && fechaSalida && horaSalida
-      ? calculateTotalDays(fechaEntrada, horaEntrada, fechaSalida, horaSalida)
-      : 1;
+  let totalHours = 0;
+
+  if (fechaEntrada && horaEntrada && fechaSalida && horaSalida) {
+    const start = new Date(`${fechaEntrada}T${horaEntrada}`);
+    const end = new Date(`${fechaSalida}T${horaSalida}`);
+
+    totalHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  }
 
   useEffect(() => {
     if (!city_id) return;
@@ -160,6 +205,8 @@ export default function ResultsClient() {
         is_covered,
         vehicle,
         pricing_strategy,
+        pricing_time_unit,
+        hourly_price,
         logo_url,
         services,
         offer_features,
@@ -216,8 +263,26 @@ const packages = pricingRows.filter(
 
 console.log("PRICING STRATEGY:", p.name, p.pricing_strategy);
 
-    // 👉 STEP 4B: calculate price
-    const pricing = calculatePrice(p, packages, totalDays);
+    // 👉 STEP 4B: calculate days + hours per parking
+
+    let totalDaysForParking: number;
+    let remainingHours: number;
+
+    if (p.pricing_time_unit === "fractional") {
+      totalDaysForParking = Math.floor(totalHours / 24);
+      remainingHours = Math.round(totalHours % 24);
+    } else {
+      totalDaysForParking = Math.ceil(totalHours / 24);
+      remainingHours = 0;
+    }
+
+    // 👉 STEP 4C: calculate price
+    const pricing = calculatePrice(
+      p,
+      packages,
+      totalDaysForParking,
+      remainingHours
+    );
 
     return {
       ...p,
@@ -372,7 +437,7 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                           </span>
                         ) : (
                           <>
-                            Total por {totalDays} {totalDays === 1 ? "día" : "días"}
+                            Total por {formatDurationFromBreakdown(p.pricing.breakdown)}
                           </>
                         )}
                       </div>
@@ -387,7 +452,9 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                         fechaSalida: fechaSalida || "",
                         horaSalida: horaSalida || "",
                         total: totalPrice.toString(),
-                        totalDays: totalDays.toString(),
+                        totalDays: (
+                          p.pricing.breakdown.reduce((acc: number, b: { days: number }) => acc + b.days, 0)
+                        ).toString(),
                         offerId: p.id
                       });
 
