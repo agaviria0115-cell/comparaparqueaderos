@@ -368,10 +368,23 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                 key={p.id}
                 className="rounded-lg border border-black bg-white overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 text-center">
+                <div
+                  className={`border-b px-4 py-3 text-center ${
+                    p.is_covered
+                      ? "bg-blue-50 border-blue-100"
+                      : "bg-green-50 border-green-100"
+                  }`}
+                >
                   <div className="font-semibold text-base">{p.name}</div>
-                  <div className="text-base text-gray-600">
+
+                  <div
+                    className={`text-base ${
+                      p.is_covered ? "text-blue-700" : "text-green-700"
+                    }`}
+                  >
+                    {" - "}
                     {p.is_covered ? "Cubierto" : "Aire Libre"}
+                    {" - "}
                   </div>
                 </div>
 
@@ -430,16 +443,14 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                       <div className="text-2xl font-bold text-green-700">
                         $ {totalPrice.toLocaleString("es-CO", { maximumFractionDigits: 0 })}
                       </div>
-                      <div className="text-[13px] text-gray-500">
-                        {p.pricing.savingsPercent > 0 ? (
-                          <span className="text-orange-600 font-medium">
-                            Ahorra {p.pricing.savingsPercent}% vs tarifa diaria
-                          </span>
-                        ) : (
-                          <>
-                            Total por {formatDurationFromBreakdown(p.pricing.breakdown)}
-                          </>
-                        )}
+                      <div
+                        className={`text-[13px] mt-1 ${
+                          p.pricing.hasRealSavings
+                            ? "text-orange-600 font-medium"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {p.pricing.explanation}
                       </div>
                     </div>
 
@@ -455,6 +466,7 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                         totalDays: (
                           p.pricing.breakdown.reduce((acc: number, b: { days: number }) => acc + b.days, 0)
                         ).toString(),
+                        pricingExplanation: p.pricing.explanation,
                         offerId: p.id
                       });
 

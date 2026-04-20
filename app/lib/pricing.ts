@@ -26,9 +26,33 @@ type PricingResult = {
   breakdown: PriceBreakdownItem[];
   savings: number;
   savingsPercent: number;
-  hasRealSavings: boolean; // 👈 NEW
+  hasRealSavings: boolean;
+  explanation: string;
 };
 
+// -----------------------------------
+// ✅ Shared explanation builder
+// -----------------------------------
+function buildExplanation(
+  totalDays: number,
+  remainingHours: number,
+  hasRealSavings: boolean,
+  savingsPercent: number
+): string {
+  if (hasRealSavings && savingsPercent > 0) {
+    return `Ahorra ${Math.round(savingsPercent)}% vs tarifa diaria`;
+  }
+
+  if (remainingHours > 0) {
+    return `Total por ${totalDays} día${totalDays !== 1 ? "s" : ""} + ${remainingHours} hora${remainingHours !== 1 ? "s" : ""}`;
+  }
+
+  return `Total por ${totalDays} día${totalDays !== 1 ? "s" : ""}`;
+}
+
+// -----------------------------------
+// MAIN FUNCTION
+// -----------------------------------
 export function calculatePrice(
   parking: Parking,
   packages: PricingPackage[] = [],
@@ -36,7 +60,9 @@ export function calculatePrice(
   remainingHours: number = 0
 ): PricingResult {
 
-  // --- SAFETY ---
+  // -----------------------------------
+  // SAFETY
+  // -----------------------------------
   if (!parking || totalDays <= 0) {
     return {
       totalPrice: 0,
@@ -45,15 +71,15 @@ export function calculatePrice(
       savings: 0,
       savingsPercent: 0,
       hasRealSavings: false,
+      explanation: "",
     };
   }
 
   const strategy = parking.pricing_strategy || "simple";
 
   // =====================================================
-  // RANGE PRICING (REPEATABLE)
+  // RANGE PRICING
   // =====================================================
-
   const rangePackages = packages
     .filter((p) => p.min_days != null && p.max_days != null)
     .sort((a, b) => (b.max_days || 0) - (a.max_days || 0));
@@ -65,7 +91,7 @@ export function calculatePrice(
     let totalPrice = 0;
     const breakdown: PriceBreakdownItem[] = [];
 
-    const blockSize = rangePackage.max_days || rangePackage.duration_days; // e.g. 30
+    const blockSize = rangePackage.max_days || rangePackage.duration_days;
     const blockPrice = rangePackage.price_total;
 
     const blocks = Math.floor(remainingDays / blockSize);
@@ -81,14 +107,11 @@ export function calculatePrice(
       remainingDays -= blocks * blockSize;
     }
 
-    // leftover → fallback to normal logic
     if (remainingDays > 0) {
-        if (
-          rangePackage.min_days &&
-          rangePackage.max_days &&
-          remainingDays >= rangePackage.min_days &&
-          remainingDays <= rangePackage.max_days
-        ){
+      if (
+        remainingDays >= (rangePackage.min_days || 0) &&
+        remainingDays <= (rangePackage.max_days || 0)
+      ) {
         breakdown.push({
           type: rangePackage.duration_type,
           days: remainingDays,
@@ -109,30 +132,14 @@ export function calculatePrice(
       }
     }
 
-    const baseline =
-      parking.price_per_day * totalDays +
-      (remainingHours > 0
-        ? Math.min(
-            remainingHours * (parking.hourly_price || 0),
-            parking.price_per_day
-          )
-        : 0);
-
-    const savings = Math.max(0, baseline - totalPrice);
-
-    const savingsPercent =
-      baseline > 0 ? Math.round((savings / baseline) * 100) : 0;
-
-    // 🔥 ADD FRACTIONAL HOURS HERE
+    // fractional hours
     if (
       parking.pricing_time_unit === "fractional" &&
       remainingHours > 0 &&
       parking.hourly_price
     ) {
-      const rawHourlyCost = remainingHours * parking.hourly_price;
-
       const cappedHourlyCost = Math.min(
-        rawHourlyCost,
+        remainingHours * parking.hourly_price,
         parking.price_per_day
       );
 
@@ -144,6 +151,19 @@ export function calculatePrice(
 
       totalPrice += cappedHourlyCost;
     }
+
+    const baseline =
+      parking.price_per_day * totalDays +
+      (remainingHours > 0
+        ? Math.min(
+            remainingHours * (parking.hourly_price || 0),
+            parking.price_per_day
+          )
+        : 0);
+
+    const savings = Math.max(0, baseline - totalPrice);
+    const savingsPercent =
+      baseline > 0 ? Math.round((savings / baseline) * 100) : 0;
 
     const usedRange =
       blocks > 0 ||
@@ -161,6 +181,7 @@ export function calculatePrice(
       savings: usedRange ? savings : 0,
       savingsPercent: usedRange ? savingsPercent : 0,
       hasRealSavings: usedRange,
+      explanation: buildExplanation(totalDays, remainingHours, usedRange, savingsPercent),
     };
   }
 
@@ -171,23 +192,16 @@ export function calculatePrice(
     let totalPrice = parking.price_per_day * totalDays;
 
     const breakdown: PriceBreakdownItem[] = [
-      {
-        type: "day",
-        days: totalDays,
-        price: totalPrice,
-      },
+      { type: "day", days: totalDays, price: totalPrice },
     ];
 
-    // 🔥 ADD FRACTIONAL HOURS SUPPORT
     if (
       parking.pricing_time_unit === "fractional" &&
       remainingHours > 0 &&
       parking.hourly_price
     ) {
-      const rawHourlyCost = remainingHours * parking.hourly_price;
-
       const cappedHourlyCost = Math.min(
-        rawHourlyCost,
+        remainingHours * parking.hourly_price,
         parking.price_per_day
       );
 
@@ -200,15 +214,6 @@ export function calculatePrice(
       totalPrice += cappedHourlyCost;
     }
 
-    const baseline =
-      parking.price_per_day * totalDays +
-      (remainingHours > 0
-        ? Math.min(
-            remainingHours * (parking.hourly_price || 0),
-            parking.price_per_day
-          )
-        : 0);
-
     return {
       totalPrice,
       pricingType: "simple",
@@ -216,37 +221,28 @@ export function calculatePrice(
       savings: 0,
       savingsPercent: 0,
       hasRealSavings: false,
+      explanation: buildExplanation(totalDays, remainingHours, false, 0),
     };
   }
 
   // =====================================================
-  // OPTIMIZED PRICING (GREEDY)
+  // OPTIMIZED PRICING
   // =====================================================
-
-  // 1. Filter valid packages (exclude "day")
   const validPackages = packages
-    .filter(
-      (p) =>
-        p.duration_days > 1 && // exclude daily packages
-        p.price_total > 0
-    )
-    .sort((a, b) => b.duration_days - a.duration_days); // DESC
+    .filter((p) => p.duration_days > 1 && p.price_total > 0)
+    .sort((a, b) => b.duration_days - a.duration_days);
 
   let remainingDays = totalDays;
   let totalPrice = 0;
   const breakdown: PriceBreakdownItem[] = [];
   let usedPackage = false;
 
-  // 2. Apply greedy allocation
   for (const pkg of validPackages) {
-    if (remainingDays <= 0) break;
-
     const count = Math.floor(remainingDays / pkg.duration_days);
 
     if (count > 0) {
       const daysUsed = count * pkg.duration_days;
       const price = count * pkg.price_total;
-      usedPackage = true;
 
       breakdown.push({
         type: pkg.duration_type,
@@ -256,10 +252,10 @@ export function calculatePrice(
 
       totalPrice += price;
       remainingDays -= daysUsed;
+      usedPackage = true;
     }
   }
 
-  // 3. Fill remaining days with daily price
   if (remainingDays > 0) {
     const dailyPrice = parking.price_per_day * remainingDays;
 
@@ -272,17 +268,13 @@ export function calculatePrice(
     totalPrice += dailyPrice;
   }
 
-  // 4. Handle fractional hours (NEW)
   if (
     parking.pricing_time_unit === "fractional" &&
     remainingHours > 0 &&
     parking.hourly_price
   ) {
-    const rawHourlyCost = remainingHours * parking.hourly_price;
-
-    // 🔥 CAP at daily price
     const cappedHourlyCost = Math.min(
-      rawHourlyCost,
+      remainingHours * parking.hourly_price,
       parking.price_per_day
     );
 
@@ -295,9 +287,6 @@ export function calculatePrice(
     totalPrice += cappedHourlyCost;
   }
 
-  // =====================================================
-  // SAVINGS CALCULATION
-  // =====================================================
   const baseline =
     parking.price_per_day * totalDays +
     (remainingHours > 0
@@ -308,7 +297,6 @@ export function calculatePrice(
       : 0);
 
   const savings = Math.max(0, baseline - totalPrice);
-
   const savingsPercent =
     baseline > 0 ? Math.round((savings / baseline) * 100) : 0;
 
@@ -319,5 +307,6 @@ export function calculatePrice(
     savings: usedPackage ? savings : 0,
     savingsPercent: usedPackage ? savingsPercent : 0,
     hasRealSavings: usedPackage,
+    explanation: buildExplanation(totalDays, remainingHours, usedPackage, savingsPercent),
   };
 }

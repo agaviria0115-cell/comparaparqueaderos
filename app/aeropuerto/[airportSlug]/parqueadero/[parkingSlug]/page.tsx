@@ -19,6 +19,7 @@ type Props = {
     total?: string;
     totalDays?: string;
     offerId?: string;
+    pricingExplanation?: string;
   }>;
 };
 
@@ -170,6 +171,7 @@ export default async function ParkingPage({ params, searchParams }: Props) {
   const formattedSalida = formatDateTime(sp?.fechaSalida, sp?.horaSalida);
 
   const totalPrice = sp?.total ? Number(sp.total) : null;
+  const pricingExplanation = sp?.pricingExplanation || null;
   const selectedOfferId = sp?.offerId ?? null;
 
   const hasSearchParams = Boolean(
@@ -463,29 +465,24 @@ if (hasSearchParams) {
                     />
 
                     <div className="hidden peer-checked:block -mx-2 mt-3">
-                      <div className="pt-1 mb-4">
-                        <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
-                          Total
-                        </div>
+                    <div>
+                      <div className="text-green-700 font-bold text-2xl">
+                        $ {Number(totalPrice).toLocaleString("es-CO", {
+                          maximumFractionDigits: 0,
+                        })}
+                      </div>
+                    </div>
+
+                      <BookingForm parking={selectedOffer} searchParams={sp} />
+                    </div>
+
+                    <div className="peer-checked:hidden flex items-center justify-between gap-3">
+                      <div className="flex flex-col">
                         <div className="text-green-700 font-bold text-2xl">
                           $ {Number(totalPrice).toLocaleString("es-CO", {
                             maximumFractionDigits: 0,
                           })}
                         </div>
-                      </div>
-
-                      <BookingForm parking={selectedOffer} searchParams={sp} />
-                    </div>
-
-                    <div className="peer-checked:hidden text-xs uppercase tracking-wide text-gray-500 mb-1">
-                      Total
-                    </div>
-
-                    <div className="peer-checked:hidden flex items-center justify-between gap-3">
-                      <div className="text-green-700 font-bold text-2xl">
-                        $ {Number(totalPrice).toLocaleString("es-CO", {
-                          maximumFractionDigits: 0,
-                        })}
                       </div>
 
                       <label
