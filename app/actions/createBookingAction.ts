@@ -134,6 +134,10 @@ export async function createBookingAction(formData: FormData) {
   const remainingHours = Math.round(diffHours % 24);
 
   // ✅ NEW — use pricing engine (same as results page)
+  if (!pricingParking) {
+    throw new Error("Pricing parking not found");
+  }
+
   const pricing = calculatePrice(
     pricingParking,
     packages || [],
