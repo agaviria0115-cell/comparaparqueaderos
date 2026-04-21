@@ -5,14 +5,11 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: [
-          "/ciudad/",
-          "/aeropuerto/",
-        ],
+        allow: "/", // Allow full site crawling
         disallow: [
-          "/results",
-          "/api",
-          "/actions",
+          "/results",   // Prevent indexing of search results
+          "/api",       // Block API routes
+          "/actions",   // Block server actions
         ],
       },
     ],

@@ -13,12 +13,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const urls: MetadataRoute.Sitemap = [];
 
+  // Helper to safely push URLs (avoids duplicates)
+  const seen = new Set<string>();
+  const addUrl = (urlObj: MetadataRoute.Sitemap[number]) => {
+    if (!seen.has(urlObj.url)) {
+      seen.add(urlObj.url);
+      urls.push(urlObj);
+    }
+  };
+
+  const now = new Date();
+
   // Home
-  urls.push({
+  addUrl({
     url: `${baseUrl}`,
     changeFrequency: "weekly",
     priority: 1.0,
-    lastModified: new Date(),
+    lastModified: now,
   });
 
   // Static pages
@@ -30,54 +41,80 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   staticPages.forEach((page) => {
-    urls.push({
+    addUrl({
       url: `${baseUrl}${page}`,
       changeFrequency: "monthly",
       priority: 0.5,
-      lastModified: new Date(),
+      lastModified: now,
     });
   });
 
   // Cities
-  const { data: cities } = await supabase.from("cities").select("slug");
+  const { data: cities, error: citiesError } = await supabase
+    .from("cities")
+    .select("slug");
 
-  cities?.forEach((city) => {
-    urls.push({
-      url: `${baseUrl}/ciudad/${city.slug}`,
-      changeFrequency: "weekly",
-      priority: 0.7,
-      lastModified: new Date(),
+  if (!citiesError && cities) {
+    cities.forEach((city) => {
+      if (!city.slug) return;
+
+      addUrl({
+        url: `${baseUrl}/ciudad/${city.slug}`,
+        changeFrequency: "weekly",
+        priority: 0.7,
+        lastModified: now,
+      });
     });
-  });
+  } else {
+    console.error("Sitemap cities error:", citiesError);
+  }
 
   // Airports
-  const { data: airports } = await supabase.from("airports").select("slug");
+  const { data: airports, error: airportsError } = await supabase
+    .from("airports")
+    .select("slug");
 
-  airports?.forEach((airport) => {
-    urls.push({
-      url: `${baseUrl}/aeropuerto/${airport.slug}`,
-      changeFrequency: "weekly",
-      priority: 0.9,
-      lastModified: new Date(),
+  if (!airportsError && airports) {
+    airports.forEach((airport) => {
+      if (!airport.slug) return;
+
+      addUrl({
+        url: `${baseUrl}/aeropuerto/${airport.slug}`,
+        changeFrequency: "weekly",
+        priority: 0.9,
+        lastModified: now,
+      });
     });
-  });
+  } else {
+    console.error("Sitemap airports error:", airportsError);
+  }
 
   // Parking pages
-  const { data: parkings } = await supabase
+  const { data: parkings, error: parkingsError } = await supabase
     .from("parkings")
     .select("slug, airports ( slug )")
     .eq("is_active", true);
 
-  parkings?.forEach((p) => {
-    const airport = p.airports?.[0];
-    if (!airport?.slug) return;
+  if (!parkingsError && parkings) {
+    parkings.forEach((p) => {
+      if (!p.slug || !p.airports) return;
 
-    urls.push({
-      url: `${baseUrl}/aeropuerto/${airport.slug}/parqueadero/${p.slug}`,
-      priority: 0.8,
-      lastModified: new Date(),
+      const airport = Array.isArray(p.airports)
+        ? p.airports[0]
+        : p.airports;
+
+      if (!airport?.slug) return;
+
+      addUrl({
+        url: `${baseUrl}/aeropuerto/${airport.slug}/parqueadero/${p.slug}`,
+        changeFrequency: "weekly",
+        priority: 0.8,
+        lastModified: now,
+      });
     });
-  });
+  } else {
+    console.error("Sitemap parkings error:", parkingsError);
+  }
 
   return urls;
 }

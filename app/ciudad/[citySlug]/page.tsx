@@ -246,7 +246,7 @@ export default async function CityPage({
                       <div className="pt-3 flex justify-center">
                         <Link
                           href={`/aeropuerto/${airport.slug}`}
-                          className="inline-flex items-center justify-center rounded-md bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 transition-all duration-200 shadow-sm hover:shadow"
+                          className="inline-flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 transition-all duration-200 shadow-sm hover:shadow"
                         >
                           Ver parqueaderos
                         </Link>

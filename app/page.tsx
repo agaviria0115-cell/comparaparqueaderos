@@ -26,76 +26,100 @@ export default function HomePage() {
       <Header />
 
       <main>
-        {/* 2️⃣ Hero + Search (inline, matches mock 1:1) */}
-        <section className="relative bg-blue-700">
-          {/* Visual layer */}
-          <div className="absolute inset-0">
-            {/* Background image */}
-            <div
-              className="absolute inset-0 bg-cover"
-              style={{
-                backgroundImage: "url('/aeropuerto-colombia-parqueaderos-hero.jpg')",
-                backgroundPosition: "center bottom",
-              }}
-            />
+        {/* 2️⃣ Search + Hero text (no background) */}
+        <section className="bg-gray-50">
+          <div className="mx-auto max-w-7xl px-6 py-10 md:py-12">
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-blue-900/70" />
-          </div>
+            {/* Card styled like design */}
+            <div className="mx-auto max-w-full rounded-2xl bg-white p-6 md:p-10 shadow-md ring-1 ring-gray-200">
 
-          {/* Content */}
-          <div className="relative mx-auto max-w-7xl px-6 py-10 md:py-8">
-            {/* Text */}
-            <div className="mx-auto mb-6 md:mb-12 max-w-2xl text-center text-white">
-              <h1 className="mb-5 text-3xl font-extrabold leading-tight md:text-5xl drop-shadow-sm">
-                Parqueaderos cerca del{" "}
-                <span className="text-yellow-400">aeropuerto</span>
-              </h1>
+              {/* Hero text INSIDE card */}
+              <div className="mb-6 w-full text-left px-4 md:px-5">
+                <h1 className="mb-2 text-2xl font-semibold tracking-tight leading-tight md:text-4xl text-gray-900">
+                  Encuentra y compara parqueaderos
+                  <br />
+                  <span className="text-blue-600">cerca del aeropuerto</span>
+                </h1>
 
-              <p className="mb-6 md:mb-10 text-base text-blue-100 md:text-lg leading-relaxed">
-                Encuentra y compara parqueaderos oficiales y privados cerca de los
-                principales aeropuertos de Colombia al mejor precio, sin sorpresas.
-              </p>
+                <p className="text-sm text-gray-600 md:text-base leading-relaxed max-w-xl md:max-w-none md:whitespace-nowrap">
+                  compara parqueaderos oficiales y privados cerca de los principales aeropuertos de Colombia al mejor precio
+                </p>
+              </div>
+
+              {/* Search form */}
+              <div className="rounded-xl bg-white p-4 md:p-5 mt-4">
+               <SearchForm />
+              </div>
+
             </div>
 
-            {/* Search form */}
-            <div className="mx-auto max-w-6xl rounded-xl bg-white p-5 shadow-2xl ring-1 ring-black/5">
-              <SearchForm />
-            </div>
-
-            {/* Space from bottom of hero */}
-            <div className="h-4 md:h-14" />
           </div>
         </section>
 
-        {/* 4️⃣ Trust & reassurance strip */}
-        <section className="bg-white border-t border-gray-200">
-          <div className="mx-auto max-w-7xl px-6 py-14 grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div>
-              <h3 className="mb-1 font-semibold text-gray-900">
-                Precios claros
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Compara tarifas finales sin costos ocultos.
-              </p>
-            </div>
+        {/* 4️⃣ Why compare with us */}
+        <section className="bg-gray-50">
+          <div className="mx-auto max-w-7xl px-6 py-8">
 
-            <div>
-              <h3 className="mb-1 font-semibold text-gray-900">
-                Cerca del aeropuerto
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Parqueaderos oficiales y privados verificados.
-              </p>
-            </div>
+            {/* Title */}
+            <h2 className="text-center text-2xl md:text-3xl font-semibold text-gray-900 mb-12">
+              ¿Por qué comparar con nosotros?
+            </h2>
 
-            <div>
-              <h3 className="mb-1 font-semibold text-gray-900">
-                Reserva fácil
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Contacta directamente al operador por WhatsApp.
-              </p>
+            {/* Features */}
+            <div className="grid grid-cols-1 gap-10 text-left md:grid-cols-4 md:gap-8">
+
+              {/* Item 1 */}
+              <div className="flex flex-col items-start">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center self-start rounded-full bg-blue-50 text-blue-600 text-xl">
+                  $
+                </div>
+                <h3 className="mb-2 font-semibold text-lg text-gray-900">
+                  Mejores precios
+                </h3>
+                <p className="text-sm text-gray-600 max-w-xs">
+                  Encuentra las mejores tarifas disponibles.
+                </p>
+              </div>
+
+              {/* Item 2 */}
+              <div className="flex flex-col items-start">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center self-start rounded-full bg-blue-50 text-blue-600 text-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-7-7.75-7-13a7 7 0 1114 0c0 5.25-7 13-7 13z"/><circle cx="12" cy="9" r="2.5" /></svg>
+                </div>
+                <h3 className="mb-2 font-semibold text-lg text-gray-900">
+                  Ubicaciones cercanas
+                </h3>
+                <p className="text-sm text-gray-600 max-w-xs">
+                  Opciones cerca de los principales aeropuertos de tu cuidad.
+                </p>
+              </div>
+
+              {/* Item 3 */}
+              <div className="flex flex-col items-start">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center self-start rounded-full bg-blue-50 text-blue-600 text-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="h-6 w-6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </div>
+                <h3 className="mb-2 font-semibold text-lg text-gray-900">
+                  Precios actualizados
+                </h3>
+                <p className="text-sm text-gray-600 max-w-xs">
+                  Información actualizada para que tomes la mejor decisión.
+                </p>
+              </div>
+
+              {/* Item 4 */}
+              <div className="flex flex-col items-start">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center self-start rounded-full bg-blue-50 text-blue-600 text-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="h-6 w-6"><path d="M12 3l7 4v5c0 5-3.582 9.74-7 11-3.418-1.26-7-6-7-11V7l7-4z"/></svg>
+                </div>
+                <h3 className="mb-2 font-semibold text-lg text-gray-900">
+                  Seguridad garantizada
+                </h3>
+                <p className="text-sm text-gray-600 max-w-xs">
+                  Parqueaderos verificados y confiables.
+                </p>
+              </div>
+
             </div>
           </div>
         </section>
@@ -132,14 +156,14 @@ export default function HomePage() {
                   aeroportuarios. Actualmente operamos en{" "}
                   <Link
                     href="/ciudad/medellin"
-                    className="font-medium text-blue-700 hover:underline"
+                    className="font-medium text-blue-600 hover:underline"
                   >
                     Medellín
                   </Link>{" "}
                   (Aeropuerto{" "}
                   <Link
                     href="/aeropuerto/jose-maria-cordova"
-                    className="font-medium text-blue-700 hover:underline"
+                    className="font-medium text-blue-600 hover:underline"
                   >
                     José María Córdova
                   </Link>
@@ -162,7 +186,7 @@ export default function HomePage() {
         </section>
 
         {/* 7️⃣ How it works */}
-        <section className="bg-white border-t border-gray-100">
+        <section className="bg-gray-50 border-t border-gray-100">
           <div className="mx-auto max-w-7xl px-6 py-20">
             <div className="mb-12 max-w-3xl">
               <h2 className="mb-4 text-2xl font-bold text-gray-900">
@@ -178,7 +202,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
               <div className="max-w-sm">
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
                     1
                   </span>
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -194,7 +218,7 @@ export default function HomePage() {
 
               <div className="max-w-sm">
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
                     2
                   </span>
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -210,7 +234,7 @@ export default function HomePage() {
 
               <div className="max-w-sm">
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
                     3
                   </span>
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -226,55 +250,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* 
-           6️⃣ Popular airports & cities
-        <section className="bg-gray-50" id="parqueaderos">
-          <div className="mx-auto max-w-7xl px-6 py-16">
-            <div className="mb-12 max-w-2xl">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">
-                Parqueaderos cerca del Aeropuerto José María Córdova
-              </h2>
-
-              <p className="text-base text-gray-700">
-                Compara parqueaderos disponibles cerca del Aeropuerto José María Córdova
-                en Medellín. Revisa precios, servicios y ubicación antes de contactar
-                directamente al operador.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Airport
-              <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">
-                  Aeropuerto
-                </h3>
-                <ul className="space-y-3 text-sm text-blue-700">
-                  <li>
-                    <Link href="/aeropuerto/jose-maria-cordova">
-                      Parqueaderos Aeropuerto José María Córdova
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* City
-              <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">
-                  Ciudad
-                </h3>
-                <ul className="space-y-3 text-sm text-blue-700">
-                  <li>
-                    <Link href="/ciudad/medellin">
-                      Parqueaderos en Medellín
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-        */}
 
         {/* 8️⃣ FAQ section */}
         <section className="bg-gray-50 border-t border-gray-200">

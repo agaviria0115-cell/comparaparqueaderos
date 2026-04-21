@@ -228,14 +228,14 @@ useEffect(() => {
      Shared styles
   ----------------------------- */
   const labelClass =
-    "mb-1 block text-xs font-medium text-gray-700";
+    "mb-2 block text-xs font-semibold text-gray-700";
 
   const inputClass =
-    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm " +
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm " +
     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none";
 
   const selectClass =
-    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm " +
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm " +
     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none " +
     "disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed";
 
@@ -246,7 +246,7 @@ useEffect(() => {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-3"
+      className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-3 bg-white"
     >
       {/* Ciudad */}
       <div className="md:col-span-2">
@@ -370,16 +370,31 @@ useEffect(() => {
       {/* CTA */}
       <div className="md:col-span-12">
         <button
-          type="submit"
           className="
+            mt-4
             w-full rounded-lg
-            bg-yellow-400 py-3
-            text-sm font-semibold text-gray-900
-            hover:bg-yellow-300
-            focus:outline-none focus:ring-2 focus:ring-yellow-400/50
+            bg-blue-600 py-3
+            text-white font-semibold
+            hover:bg-blue-700
+            focus:outline-none focus:ring-2 focus:ring-blue-600/40
             transition
+            flex items-center justify-center gap-2
           "
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35m1.85-5.4a7.25 7.25 0 11-14.5 0 7.25 7.25 0 0114.5 0z"
+            />
+          </svg>
           Buscar parqueadero
         </button>
       </div>

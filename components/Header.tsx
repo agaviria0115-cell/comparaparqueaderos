@@ -14,7 +14,7 @@ export default function Header() {
   return (
     <>
       {/* Header */}
-      <header className="bg-gray-50 border-b border-gray-200 relative z-50">
+      <header className="bg-white shadow-sm relative z-50">
         <div className="mx-auto max-w-7xl px-6 py-4 relative flex items-center">
 
           {/* Mobile hamburger */}
@@ -40,9 +40,13 @@ export default function Header() {
           </button>
 
           {/* Centered logo on mobile */}
-          <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 font-bold text-lg text-blue-700">
+          <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
             <Link href="/" className="hover:opacity-80 transition">
-              Comparaparqueaderos
+              <img
+                src="/logo.png"
+                alt="Comparaparqueaderos"
+                className="h-10 md:h-14 w-auto"
+              />
             </Link>
           </div>
 
@@ -83,9 +87,13 @@ export default function Header() {
         {/* Drawer header */}
         <div className="bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
 
-          <div className="font-semibold text-blue-700 text-base">
-            Comparaparqueaderos
-          </div>
+        <div>
+          <img
+            src="/logo.png"
+            alt="Comparaparqueaderos"
+            className="h-7 w-auto"
+          />
+        </div>
 
           {/* Close button */}
           <button

@@ -311,7 +311,7 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
         {airport && <> / <Link href={`/aeropuerto/${airport.slug}`}>Aeropuerto {airport.name}</Link></>}
       </nav>
 
-      <PageHeader
+      <PageHeader 
         title={
           airport
             ? `Parqueaderos cerca del Aeropuerto ${airport.name} (${airport.code})`
@@ -475,7 +475,7 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                       return (
                         <Link
                           href={url}
-                          className="inline-flex items-center justify-center rounded-md bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 transition"
+                          className="inline-flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 transition"
                         >
                           Ver detalles
                         </Link>
