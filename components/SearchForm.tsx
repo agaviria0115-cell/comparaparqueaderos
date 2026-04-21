@@ -231,11 +231,11 @@ useEffect(() => {
     "mb-1 md:mb-2 block text-xs font-semibold text-gray-700";
 
   const inputClass =
-    "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm " +
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 md:py-2.5 text-sm " +
     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none";
 
   const selectClass =
-    "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm " +
+    "w-full rounded-md border border-gray-300 bg-white px-3 py-2 md:py-2.5 text-sm " +
     "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none " +
     "disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed";
 
