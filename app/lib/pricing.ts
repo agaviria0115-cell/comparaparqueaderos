@@ -63,7 +63,7 @@ export function calculatePrice(
   // -----------------------------------
   // SAFETY
   // -----------------------------------
-  if (!parking || totalDays <= 0) {
+  if (!parking || (totalDays <= 0 && remainingHours <= 0)) {
     return {
       totalPrice: 0,
       pricingType: "simple",
@@ -74,6 +74,15 @@ export function calculatePrice(
       explanation: "",
     };
   }
+
+  // ✅ Enforce minimum 1 day when using fractional pricing
+  const billableDays =
+    totalDays > 0
+      ? totalDays
+      : parking.pricing_time_unit === "fractional" && remainingHours > 0
+      ? 1
+      : 0;
+  
 
   const strategy = parking.pricing_strategy || "simple";
 
@@ -87,7 +96,7 @@ export function calculatePrice(
   const rangePackage = rangePackages[0];
 
   if (rangePackage) {
-    let remainingDays = totalDays;
+    let remainingDays = billableDays;
     let totalPrice = 0;
     const breakdown: PriceBreakdownItem[] = [];
 
@@ -153,7 +162,7 @@ export function calculatePrice(
     }
 
     const baseline =
-      parking.price_per_day * totalDays +
+      parking.price_per_day * billableDays +
       (remainingHours > 0
         ? Math.min(
             remainingHours * (parking.hourly_price || 0),
@@ -181,7 +190,7 @@ export function calculatePrice(
       savings: usedRange ? savings : 0,
       savingsPercent: usedRange ? savingsPercent : 0,
       hasRealSavings: usedRange,
-      explanation: buildExplanation(totalDays, remainingHours, usedRange, savingsPercent),
+      explanation: buildExplanation(billableDays, remainingHours, usedRange, savingsPercent),
     };
   }
 
@@ -189,10 +198,10 @@ export function calculatePrice(
   // SIMPLE PRICING
   // =====================================================
   if (strategy === "simple" || packages.length === 0) {
-    let totalPrice = parking.price_per_day * totalDays;
+    let totalPrice = parking.price_per_day * billableDays;
 
     const breakdown: PriceBreakdownItem[] = [
-      { type: "day", days: totalDays, price: totalPrice },
+      { type: "day", days: billableDays, price: totalPrice },
     ];
 
     if (
@@ -221,7 +230,7 @@ export function calculatePrice(
       savings: 0,
       savingsPercent: 0,
       hasRealSavings: false,
-      explanation: buildExplanation(totalDays, remainingHours, false, 0),
+      explanation: buildExplanation(billableDays, remainingHours, false, 0),
     };
   }
 
@@ -232,7 +241,7 @@ export function calculatePrice(
     .filter((p) => p.duration_days > 1 && p.price_total > 0)
     .sort((a, b) => b.duration_days - a.duration_days);
 
-  let remainingDays = totalDays;
+  let remainingDays = billableDays;
   let totalPrice = 0;
   const breakdown: PriceBreakdownItem[] = [];
   let usedPackage = false;
@@ -288,7 +297,7 @@ export function calculatePrice(
   }
 
   const baseline =
-    parking.price_per_day * totalDays +
+    parking.price_per_day * billableDays +
     (remainingHours > 0
       ? Math.min(
           remainingHours * (parking.hourly_price || 0),
@@ -307,6 +316,6 @@ export function calculatePrice(
     savings: usedPackage ? savings : 0,
     savingsPercent: usedPackage ? savingsPercent : 0,
     hasRealSavings: usedPackage,
-    explanation: buildExplanation(totalDays, remainingHours, usedPackage, savingsPercent),
+    explanation: buildExplanation(billableDays, remainingHours, usedPackage, savingsPercent),
   };
 }
