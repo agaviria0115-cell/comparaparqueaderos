@@ -62,10 +62,6 @@ export const metadata: Metadata = {
     images: [`${baseUrl}/aeropuerto-colombia-parqueaderos-hero.jpg`],
   },
 
-  robots: {
-    index: false,
-    follow: false,
-  },
 };
 
 export default function RootLayout({
