@@ -28,13 +28,13 @@ export default function HomePage() {
       <main>
         {/* 2️⃣ Search + Hero text (no background) */}
         <section className="bg-gray-50">
-          <div className="mx-auto max-w-7xl px-6 py-10 md:py-12">
+          <div className="mx-auto max-w-7xl px-4 py-10 md:py-12">
 
             {/* Card styled like design */}
-            <div className="mx-auto max-w-full rounded-2xl bg-white p-6 md:p-10 shadow-md ring-1 ring-gray-200">
+            <div className="mx-auto max-w-full rounded-2xl bg-white p-5 md:p-10 shadow-md ring-1 ring-gray-200">
 
               {/* Hero text INSIDE card */}
-              <div className="mb-6 w-full text-left px-4 md:px-5">
+              <div className="mb-6 w-full text-left">
                 <h1 className="mb-2 text-2xl font-semibold tracking-tight leading-tight md:text-4xl text-gray-900">
                   Encuentra y compara parqueaderos
                   <br />
@@ -48,7 +48,7 @@ export default function HomePage() {
 
               {/* Search form */}
               <div className="rounded-xl bg-white p-4 md:p-5 mt-4">
-               <SearchForm />
+                <SearchForm />
               </div>
 
             </div>
