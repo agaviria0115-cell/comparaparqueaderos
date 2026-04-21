@@ -150,7 +150,9 @@ export default async function AirportPage({
      4️⃣ Structured Data
   ----------------------------- */
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://comparaparqueaderos.com";
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
