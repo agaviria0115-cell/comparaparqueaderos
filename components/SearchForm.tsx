@@ -314,7 +314,7 @@ useEffect(() => {
             min={today}
             value={form.fechaEntrada}
             onChange={handleChange}
-            className={`${inputClass} flex-1`}
+            className={`${inputClass} flex-1 h-full`}
           />
           <select
             name="horaEntrada"
@@ -342,7 +342,7 @@ useEffect(() => {
             min={today}
             value={form.fechaSalida}
             onChange={handleChange}
-            className={`${inputClass} flex-1`}
+            className={`${inputClass} flex-1 h-full`}
           />
           <select
             name="horaSalida"
@@ -371,7 +371,7 @@ useEffect(() => {
       <div className="md:col-span-12">
         <button
           className="
-            mt-4
+            mt-2 md:mt-4
             w-full rounded-lg
             bg-blue-600 py-3
             text-white font-semibold

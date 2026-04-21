@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6 pt-6 pb-10 md:py-12">
 
             {/* Card styled like design */}
-            <div className="mx-auto max-w-full rounded-2xl bg-white p-6 md:p-10 shadow-md ring-1 ring-gray-200">
+            <div className="mx-auto max-w-full rounded-2xl bg-white p-5 md:p-10 shadow-md ring-1 ring-gray-200">
 
               {/* Hero text INSIDE card */}
               <div className="mb-1 md:mb-6 w-full text-left px-4 md:px-5">
@@ -47,7 +47,7 @@ export default function HomePage() {
               </div>
 
               {/* Search form */}
-              <div className="rounded-xl bg-white p-4 md:p-5 mt-4">
+              <div className="rounded-xl bg-white p-4 md:p-5 mt-3 md:mt-4">
                 <SearchForm />
               </div>
 
