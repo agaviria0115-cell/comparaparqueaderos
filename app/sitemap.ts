@@ -89,31 +89,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Sitemap airports error:", airportsError);
   }
 
-  // Parking pages
-  const { data: parkings, error: parkingsError } = await supabase
-    .from("parkings")
-    .select("slug, airports ( slug )")
+  // ✅ Parking LOCATION pages (SEO pages)
+  const { data: locations, error: locationsError } = await supabase
+    .from("parking_locations")
+    .select(`
+      slug,
+      airport_id,
+      airports ( slug )
+    `)
     .eq("is_active", true);
 
-  if (!parkingsError && parkings) {
-    parkings.forEach((p) => {
-      if (!p.slug || !p.airports) return;
+  if (!locationsError && locations) {
+    locations.forEach((loc) => {
+      if (!loc.slug || !loc.airports) return;
 
-      const airport = Array.isArray(p.airports)
-        ? p.airports[0]
-        : p.airports;
+      const airport = Array.isArray(loc.airports)
+        ? loc.airports[0]
+        : loc.airports;
 
       if (!airport?.slug) return;
 
       addUrl({
-        url: `${baseUrl}/aeropuerto/${airport.slug}/parqueadero/${p.slug}`,
+        url: `${baseUrl}/aeropuerto/${airport.slug}/parqueadero/${loc.slug}`,
         changeFrequency: "weekly",
         priority: 0.8,
         lastModified: now,
       });
     });
   } else {
-    console.error("Sitemap parkings error:", parkingsError);
+    console.error("Sitemap parking_locations error:", locationsError);
   }
 
   return urls;
