@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const font = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -71,7 +72,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-        <body className={`${font.className} antialiased bg-white text-gray-900`}>
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-8KHGNHS1GD"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-script" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'G-8KHGNHS1GD');
+          `}
+        </Script>
+      </head>
+
+      <body className={`${font.className} antialiased bg-white text-gray-900`}>
         {children}
       </body>
     </html>
