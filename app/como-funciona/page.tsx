@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { createClient } from "@supabase/supabase-js";
 
 /* =====================================================
    Metadata — SEO Optimized
@@ -22,7 +23,19 @@ export const metadata: Metadata = {
    Page
 ===================================================== */
 
-export default function ComoFuncionaPage() {
+export default async function ComoFuncionaPage() {
+  // ✅ Create Supabase client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // ✅ Fetch airports dynamically
+  const { data: airports } = await supabase
+    .from("airports")
+    .select("name, slug")
+    .order("name", { ascending: true });
+
   return (
     <>
       <Header />
@@ -44,12 +57,11 @@ export default function ComoFuncionaPage() {
           </p>
 
           {/* ================================
-              STEP SECTION — VISUAL CARDS
+              STEP SECTION
           ================================= */}
 
           <div className="grid md:grid-cols-3 gap-6 mb-14">
 
-            {/* Step 1 */}
             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
               <div className="text-3xl mb-3">🔍</div>
               <h2 className="text-xl font-semibold mb-3 text-gray-900">
@@ -61,7 +73,6 @@ export default function ComoFuncionaPage() {
               </p>
             </div>
 
-            {/* Step 2 */}
             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
               <div className="text-3xl mb-3">💰</div>
               <h2 className="text-xl font-semibold mb-3 text-gray-900">
@@ -73,7 +84,6 @@ export default function ComoFuncionaPage() {
               </p>
             </div>
 
-            {/* Step 3 */}
             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-md transition">
               <div className="text-3xl mb-3">📱</div>
               <h2 className="text-xl font-semibold mb-3 text-gray-900">
@@ -88,7 +98,7 @@ export default function ComoFuncionaPage() {
           </div>
 
           {/* ================================
-              WHY USE US SECTION
+              WHY USE US
           ================================= */}
 
           <section className="mb-14">
@@ -105,7 +115,7 @@ export default function ComoFuncionaPage() {
           </section>
 
           {/* ================================
-              INTERNAL LINKS — SEO BOOST
+              DYNAMIC AIRPORT LINKS (FIXED)
           ================================= */}
 
           <section className="mb-14">
@@ -118,27 +128,27 @@ export default function ComoFuncionaPage() {
             </p>
 
             <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/aeropuerto/jose-maria-cordova"
-                  className="text-blue-600 hover:underline"
-                >
-                  Parqueaderos en el Aeropuerto José María Córdova
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/aeropuerto/el-dorado"
-                  className="text-blue-600 hover:underline"
-                >
-                  Parqueaderos en el Aeropuerto El Dorado
-                </Link>
-              </li>
+              {airports && airports.length > 0 ? (
+                airports.map((airport) => (
+                  <li key={airport.slug}>
+                    <Link
+                      href={`/aeropuerto/${airport.slug}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Parqueaderos en el Aeropuerto {airport.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500">
+                  Próximamente más aeropuertos disponibles.
+                </li>
+              )}
             </ul>
           </section>
 
           {/* ================================
-              FAQ SECTION (SEO GOLD)
+              FAQ
           ================================= */}
 
           <section>

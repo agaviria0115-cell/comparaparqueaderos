@@ -99,7 +99,7 @@ export default function SearchForm() {
     async function loadAirports() {
       const { data } = await supabase
         .from("airports")
-        .select("id, name, code")
+        .select("id, name, code, slug")
         .eq("city_id", form.city_id);
 
       setAirports(data || []);
@@ -144,6 +144,37 @@ useEffect(() => {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // ✅ Track search event
+    if (typeof window !== "undefined" && window.gtag) {
+
+      const start = new Date(`${form.fechaEntrada}T${form.horaEntrada}`);
+      const end = new Date(`${form.fechaSalida}T${form.horaSalida}`);
+
+      const diffMs = end.getTime() - start.getTime();
+      const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const durationDays = Math.floor(totalHours / 24);
+      const remainingHours = totalHours % 24;
+
+      const selectedAirportObj = airports.find(
+        (a) => a.id === form.airport_id
+      );
+
+      window.gtag("event", "search_submitted", {
+        airport_id: form.airport_id,
+        airport_slug: selectedAirportObj?.slug, // or .slug if available
+        vehicle: form.vehiculo,
+
+        start_date: form.fechaEntrada,
+        start_time: form.horaEntrada,
+
+        end_date: form.fechaSalida,
+        end_time: form.horaSalida,
+
+        duration_days: durationDays,
+        duration_hours: remainingHours,
+      });
+    }
 
     const {
       city_id,

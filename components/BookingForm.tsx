@@ -50,13 +50,34 @@ export default function BookingForm({ parking, searchParams }: Props) {
   if (!parking) return null;
 
   async function handleSubmit(formData: FormData) {
+
+    // ✅ Track WhatsApp click BEFORE async call (important)
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "whatsapp_click", {
+        parking_id: parking.id,
+        parking_name: parking.name,
+        price: searchParams?.total ? Number(searchParams.total) : undefined,
+        vehicle: searchParams?.vehiculo,
+
+        start_date: searchParams?.fechaEntrada,
+        start_time: searchParams?.horaEntrada,
+
+        end_date: searchParams?.fechaSalida,
+        end_time: searchParams?.horaSalida,
+
+        airport_id: searchParams?.airport_id,      // ✅ ADD
+        airport_slug: searchParams?.airport_slug,  // ✅ ADD
+      });
+    }
+
     const result = await createBookingAction(formData);
 
     if (result?.whatsappUrl) {
-      // Open WhatsApp in new tab
+
+      // Open WhatsApp
       window.open(result.whatsappUrl, "_blank");
 
-      // Replace form with confirmation
+      // UI state
       setIsSubmitted(true);
     }
   }

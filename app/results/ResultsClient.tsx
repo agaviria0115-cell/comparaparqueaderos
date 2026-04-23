@@ -214,7 +214,7 @@ export default function ResultsClient() {
         parking_location:parking_locations!inner (
           id,
           slug,
-          airport:airports ( slug )
+          airport:airports ( id, slug )
         )
       `)
       .eq("airport_id", airport_id)
@@ -467,7 +467,9 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                           p.pricing.breakdown.reduce((acc: number, b: { days: number }) => acc + b.days, 0)
                         ).toString(),
                         pricingExplanation: p.pricing.explanation,
-                        offerId: p.id
+                        offerId: p.id,
+                        airport_id: airport_id || "",
+                        airport_slug: airport?.slug || "",
                       });
 
                       const url = `/aeropuerto/${p.parking_location.airport.slug}/parqueadero/${p.parking_location.slug}?${params.toString()}`;
@@ -475,6 +477,20 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                       return (
                         <Link
                           href={url}
+                          onClick={() => {
+                            if (typeof window !== "undefined" && window.gtag) {
+                              window.gtag("event", "parking_viewed", {
+                                parking_id: p.id,
+                                parking_name: p.parking_location.slug,
+                                price: totalPrice,
+                                vehicle: vehiculo,
+                                coverage: p.is_covered ? "cubierto" : "aire-libre",
+
+                                airport_id: p.parking_location.airport.id,      // ✅ ADD
+                                airport_slug: p.parking_location.airport.slug,  // ✅ ADD
+                              });
+                            }
+                          }}
                           className="inline-flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 transition"
                         >
                           Ver detalles

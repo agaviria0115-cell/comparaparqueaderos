@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ContactForm from "@/components/ContactForm";
 
 /* =====================================================
    Metadata — SEO Optimized
@@ -37,7 +38,10 @@ export default function ContactoPage() {
           </p>
 
           {/* Contact Info Card */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-12">
+          <a
+            href="mailto:hola@comparaparqueaderos.com"
+            className="block bg-gray-50 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition"
+          >
             <h2 className="text-xl font-semibold text-gray-900 mb-3">
               Correo electrónico
             </h2>
@@ -46,13 +50,30 @@ export default function ContactoPage() {
               Puedes escribirnos directamente a:
             </p>
 
-            <a
-              href="mailto:hola@comparaparqueaderos.com"
-              className="text-blue-600 font-medium hover:underline block mt-2"
-            >
+            <p className="text-blue-600 font-medium mt-2">
               hola@comparaparqueaderos.com
-            </a>
-          </div>
+            </p>
+          </a>
+
+          {/* WhatsApp Card */}
+          <a
+            href="https://wa.me/573058724251?text=Hola,%20tengo%20una%20consulta%20sobre%20Comparaparqueaderos"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-green-50 border border-green-200 rounded-xl p-6 mb-12 hover:shadow-md transition"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              WhatsApp
+            </h2>
+
+            <p className="text-gray-700">
+              Escríbenos directamente por WhatsApp:
+            </p>
+
+            <p className="text-green-700 font-medium mt-2">
+              +57 305 872 4251
+            </p>
+          </a>
 
           {/* Form Section */}
           <section>
@@ -60,53 +81,7 @@ export default function ContactoPage() {
               Envíanos un mensaje
             </h2>
 
-            <form className="space-y-6 max-w-xl">
-
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  placeholder="Tu nombre"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Correo electrónico
-                </label>
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Message */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mensaje
-                </label>
-                <textarea
-                  rows={5}
-                  placeholder="Escribe tu mensaje aquí..."
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Button */}
-              <button
-                type="button"
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-              >
-                Enviar mensaje
-              </button>
-
-            </form>
+            <ContactForm />
           </section>
 
         </div>
