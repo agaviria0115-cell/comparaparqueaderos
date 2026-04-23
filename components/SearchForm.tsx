@@ -146,7 +146,7 @@ useEffect(() => {
     setError(null);
 
     // ✅ Track search event
-    if (typeof window !== "undefined" && window.gtag) {
+    if (typeof window !== "undefined" && (window as any).gtag) {
 
       const start = new Date(`${form.fechaEntrada}T${form.horaEntrada}`);
       const end = new Date(`${form.fechaSalida}T${form.horaSalida}`);
@@ -160,7 +160,7 @@ useEffect(() => {
         (a) => a.id === form.airport_id
       );
 
-      window.gtag("event", "search_submitted", {
+      (window as any).gtag("event", "search_submitted", {
         airport_id: form.airport_id,
         airport_slug: selectedAirportObj?.slug, // or .slug if available
         vehicle: form.vehiculo,

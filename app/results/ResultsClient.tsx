@@ -478,8 +478,8 @@ const sortedParkings = [...parkingsWithPricing].sort((a, b) => {
                         <Link
                           href={url}
                           onClick={() => {
-                            if (typeof window !== "undefined" && window.gtag) {
-                              window.gtag("event", "parking_viewed", {
+                            if (typeof window !== "undefined" && (window as any).gtag) {
+                              (window as any).gtag("event", "parking_viewed", {
                                 parking_id: p.id,
                                 parking_name: p.parking_location.slug,
                                 price: totalPrice,

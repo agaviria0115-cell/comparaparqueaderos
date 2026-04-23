@@ -52,8 +52,8 @@ export default function BookingForm({ parking, searchParams }: Props) {
   async function handleSubmit(formData: FormData) {
 
     // ✅ Track WhatsApp click BEFORE async call (important)
-    if (typeof window !== "undefined" && window.gtag) {
-      window.gtag("event", "whatsapp_click", {
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "whatsapp_click", {
         parking_id: parking.id,
         parking_name: parking.name,
         price: searchParams?.total ? Number(searchParams.total) : undefined,
