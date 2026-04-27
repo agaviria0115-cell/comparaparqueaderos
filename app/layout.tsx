@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 
 const baseUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://www.comparaparqueaderos.com";
+  "https://comparaparqueaderos.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
