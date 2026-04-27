@@ -26,6 +26,10 @@ const baseUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
 
+  alternates: {
+  canonical: baseUrl,
+},
+
   title: {
     default:
       "Parqueaderos cerca del aeropuerto en Colombia | ComparaParqueaderos",
