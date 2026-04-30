@@ -54,11 +54,29 @@ export default function SearchForm() {
   const horaSalidaRef = useRef<HTMLSelectElement>(null);
   const horaEntradaRef = useRef<HTMLSelectElement>(null);
 
-  const today = new Date().toISOString().split("T")[0];
+  function getLocalDateYYYYMMDD() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
 
-  const tomorrow = new Date(Date.now() + 86400000)
-    .toISOString()
-    .split("T")[0];
+    return `${year}-${month}-${day}`;
+  }
+
+  const today = getLocalDateYYYYMMDD();
+
+  function getTomorrowYYYYMMDD() {
+    const now = new Date();
+    now.setDate(now.getDate() + 1);
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  const tomorrow = getTomorrowYYYYMMDD();
 
   const timeOptions = generateTimeOptions(15);
 
